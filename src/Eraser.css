@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+
+@layer base{
+    html, body, #root{
+        @apply h-full w-full bg-blue-50
+    }
+}
+
+
+/* Add this to your global CSS file or index.css */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+.cursor-crosshair {
+  cursor: crosshair;
+}
+
+.cursor-move {
+  cursor: move;
+}
+
+.cursor-copy {
+  cursor: copy;
+}
+
+/* Ensure React Flow handles are positioned correctly */
+.react-flow__handle {
+  pointer-events: all;
+}
+
+.react-flow__handle.connecting {
+  background: #ff6060 !important;
+}
+
+/* Make sure the connection line is visible during dragging */
+.react-flow__connection {
+  stroke: #333;
+  stroke-width: 2px;
+}
