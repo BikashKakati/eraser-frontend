@@ -8,11 +8,12 @@ const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
   targetX,
   targetY,
   sourcePosition,
-  targetPosition
+  targetPosition,
+  markerStart,
 }) => {
-    const [stepTypePath] = getSmoothStepPath({sourceX, sourceY, targetY, targetX, sourcePosition, targetPosition})
+  const [stepTypePath] = getSmoothStepPath({ sourceX, sourceY, targetY, targetX, sourcePosition, targetPosition})
   return (
-    <BaseEdge path={stepTypePath}/>
+    <BaseEdge path={stepTypePath} markerStart={markerStart}/>
   );
 };
 

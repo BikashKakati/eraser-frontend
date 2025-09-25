@@ -1,6 +1,7 @@
-import { NodeResizer, type NodeProps } from '@xyflow/react'
+import { NodeResizer, Position, type NodeProps } from '@xyflow/react'
 import React from 'react'
 import type { ShapeNode } from '../../../../types'
+import AnchorPoint from '../../../anchor-point/AnchorPoint'
 
 const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
   // base node size (fallback to previous hardcoded values)
@@ -30,6 +31,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
         }}
       >
         <p className="text-center break-words px-2">{data.textContent}</p>
+        <AnchorPoint position={Position.Right} type='target' id="right" isConnectable={true}/>
+        <AnchorPoint position={Position.Left} type='source' id="left" isConnectable={true}/>
       </div>
 
       <NodeResizer
@@ -41,6 +44,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
         lineClassName="!border-2 !border-blue-500"
         handleClassName="!w-3 !h-3 !bg-blue-500 !border-2 !rounded-sm !border-white rounded-full shadow-md transform transition-transform"
       />
+
+      
     </div>
   )
 }
