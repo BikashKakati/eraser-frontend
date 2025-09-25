@@ -14,21 +14,38 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm p-4 w-52 z-10 shadow-xl rounded-lg border border-gray-200">
-      <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Tools</h2>
+      <h2 className="text-lg font-bold mb-4 text-gray-800 border-b pb-2">
+        Tools
+      </h2>
       <div className="space-y-2">
-        <button onClick={() => setActiveTool("select")} className={getButtonClass("select")}>
+        <button
+          onClick={() => setActiveTool("select")}
+          className={getButtonClass("select")}
+        >
           Select / Move
         </button>
-        <button onClick={() => setActiveTool("rectangle")} className={getButtonClass("rectangle")}>
+        <button
+          onClick={() => setActiveTool("rectangle")}
+          className={getButtonClass("rectangle")}
+        >
           Rectangle
         </button>
-        <button onClick={() => setActiveTool("circle")} className={getButtonClass("circle")}>
+        <button
+          onClick={() => setActiveTool("circle")}
+          className={getButtonClass("circle")}
+        >
           Circle
         </button>
-        <button onClick={() => setActiveTool("arrow")} className={getButtonClass("arrow")}>
+        <button
+          onClick={() => setActiveTool("arrow")}
+          className={getButtonClass("arrow")}
+        >
           Arrow
         </button>
-        <button onClick={() => setActiveTool("pan")} className={getButtonClass("pan")}>
+        <button
+          onClick={() => setActiveTool("pan")}
+          className={getButtonClass("pan")}
+        >
           Pan / Zoom
         </button>
       </div>

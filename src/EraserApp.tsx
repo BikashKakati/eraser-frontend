@@ -1,6 +1,6 @@
 import React from "react";
-import Sidebar from "./components/sidebar";
-import MainCanvas from "./components/main-canvas";
+import Sidebar from "./components/sidebar/Sidebar";
+import MainCanvas from "./components/main-canvas/MainCanvas";
 import { ReactFlowProvider } from "@xyflow/react";
 
 
