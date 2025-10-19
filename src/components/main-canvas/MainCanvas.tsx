@@ -39,9 +39,8 @@ const MainCanvas: React.FC = () => {
     const newEdge: CustomEdge = {
       ...connection,
       type: EdgeTypes.connectableArrow,
-      animated: true,
       id: getUniqueId(),
-      markerStart: {
+      markerEnd: {
         type: MarkerType.Arrow,
         width: 30,
         height: 30,
