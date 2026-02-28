@@ -23,5 +23,11 @@ export type EdgeData = {
   arrowText?:string,
 }
 
+export type AnchorData = {text?:string, identityType:"source"|"target"}
+
 export type ShapeNode = Node<ShapeNodeData, ShapeNodeType>;
+export type AnchorNodeType = Node<AnchorData, "anchor">;
+export type AppNode =
+|AnchorNodeType
+|ShapeNode
 export type CustomEdge = Edge<EdgeData, EdgeTypes>;
