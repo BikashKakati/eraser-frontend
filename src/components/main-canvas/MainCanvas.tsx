@@ -1,5 +1,5 @@
 import {
-  addEdge, // Import this
+  addEdge,
   ConnectionMode,
   MarkerType,
   ReactFlow,
@@ -9,13 +9,14 @@ import {
   type Connection,
   type NodeChange
 } from "@xyflow/react";
+
 import {
   useCallback,
   useState,
   type MouseEvent as ReactMouseEvent
 } from "react";
 
-// Import your updated types and new AnchorNode
+
 import { tempNodes } from "../../constant";
 import { useActiveToolStore } from "../../store/zustand-store";
 import { EdgeTypes, type AnchorNodeType, type AppNode, type CustomEdge } from "../../types";
@@ -26,11 +27,11 @@ import CircleNode from "../custom-nodes/circle/CircleNode";
 import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
 import { getUniqueId } from "../utils";
 
-// Add the new AnchorNode to your node types
+
 const nodeTypes = {
   rectangle: RectangleNode,
   circle: CircleNode,
-  anchor: AnchorNode, // Add this
+  anchor: AnchorNode,
 };
 
 const edgeTypes = {
@@ -41,6 +42,7 @@ const MainCanvas: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(tempNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
   const { activeTool } = useActiveToolStore();
+  console.log(activeTool);
 
   const { screenToFlowPosition } = useReactFlow<AppNode, CustomEdge>();
 
@@ -50,14 +52,12 @@ const MainCanvas: React.FC = () => {
   const [anchorNodeDetails, setAnchorNodeDetails] = useState<{ sourceNodeId: string, targetNodeId: string } | null>(null)
 
   function handleNodeChange(nodeChanges: NodeChange<AppNode>[]) {
-    // Your existing logic to prevent moving nodes
     if (activeTool === "arrow") {
       return;
     }
     onNodesChange(nodeChanges);
   }
 
-  // This handles connections between existing nodes' handles
   function handleConnectNodes(connection: Connection) {
     const newEdge: CustomEdge = {
       ...connection,
@@ -68,7 +68,7 @@ const MainCanvas: React.FC = () => {
     setEdges((existingEdges) => addEdge(newEdge, existingEdges));
   }
 
-  // Handler to start drawing a free-floating arrow
+  // Handler to start drawing a free-floating arrow (Anchor Node)
   const handleMouseDown = useCallback(
     (event: ReactMouseEvent) => {
       if (activeTool !== 'arrow' || event.button !== 0) return;
@@ -104,7 +104,6 @@ const MainCanvas: React.FC = () => {
     }, [activeTool, screenToFlowPosition, setNodes]
   );
 
-  // Handler to update the arrow's end point while drawing
   const handleMouseMove = useCallback(
     (event: ReactMouseEvent) => {
       if (!anchorNodeDetails) return;
@@ -153,11 +152,11 @@ const MainCanvas: React.FC = () => {
       onEdgesChange={onEdgesChange}
       connectionMode={ConnectionMode.Loose}
       connectionLineComponent={ConnectionLine}
-      // Add the new mouse event handlers
+
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      // Add a class to the pane when the arrow tool is active
+
       className={activeTool === 'arrow' ? 'arrow-tool-active' : ''}
 
       // Prevents the canvas from panning when the arrow tool is active
