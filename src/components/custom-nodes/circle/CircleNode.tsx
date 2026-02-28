@@ -3,7 +3,7 @@ import {
   type NodeProps
 } from "@xyflow/react";
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import type { ShapeNode } from "../../../../types";
+import type { ShapeNode } from "../../../types";
 
 const CircleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
   const margin = 10;

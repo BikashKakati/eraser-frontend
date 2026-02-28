@@ -1,9 +1,9 @@
 // RectangleNode.tsx
 import { NodeResizer, Position, type NodeProps } from '@xyflow/react';
 import React from 'react';
-import { useActiveToolStore } from '../../../../store/zustand-store';
-import type { ShapeNode } from '../../../../types';
-import AnchorPoint from '../../../anchor-point/AnchorPoint';
+import type { ShapeNode } from '../../../types';
+import { useActiveToolStore } from '../../../store/zustand-store';
+import AnchorPoint from '../../anchor-point/AnchorPoint';
 
 
 const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {

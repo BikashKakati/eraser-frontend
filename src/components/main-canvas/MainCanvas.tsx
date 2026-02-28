@@ -22,8 +22,8 @@ import { EdgeTypes, type AnchorNodeType, type AppNode, type CustomEdge } from ".
 import ConnectionLine from "../connection-line/ConnectionLine";
 import ConnectableArrow from "../custom-edges/connectable-arrow/ConnectableArrow";
 import AnchorNode from "../custom-nodes/AnchorNode";
-import CircleNode from "../custom-nodes/shape-nodes/circle/CircleNode";
-import RectangleNode from "../custom-nodes/shape-nodes/rectangle/RectangleNode";
+import CircleNode from "../custom-nodes/circle/CircleNode";
+import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
 import { getUniqueId } from "../utils";
 
 // Add the new AnchorNode to your node types
@@ -84,7 +84,7 @@ const MainCanvas: React.FC = () => {
         id: sourceNodeId,
         type: "anchor",
         position: flowPosition,
-        data: {identityType:"source"},
+        data: { identityType: "source" },
         draggable: false,
         selectable: false,
       };
@@ -93,7 +93,7 @@ const MainCanvas: React.FC = () => {
         id: targetNodeId,
         type: "anchor",
         position: flowPosition,
-        data: {identityType:"target"},
+        data: { identityType: "target" },
         draggable: false,
         selectable: false,
       };
@@ -125,7 +125,7 @@ const MainCanvas: React.FC = () => {
 
   // Handler to finalize the arrow drawing
   const handleMouseUp = useCallback(() => {
-    if(!anchorNodeDetails) return;
+    if (!anchorNodeDetails) return;
     const { sourceNodeId, targetNodeId } = anchorNodeDetails;
 
     const newEdge: CustomEdge = {
