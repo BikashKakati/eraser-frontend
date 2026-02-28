@@ -14,8 +14,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
   const wrapperWidth = nodeWidth + margin * 2;
   const wrapperHeight = nodeHeight + margin * 2;
 
-  const CORNER_RADIUS = 25; // rounded-[25px]
-  const STROKE_WIDTH = 2; // same as border-[2px]
+  const CORNER_RADIUS = 20; // rounded-[25px]
+  const STROKE_WIDTH = 1; // same as border-[2px]
 
   const { activeTool } = useActiveToolStore();
 
@@ -57,7 +57,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
             minWidth={100 + margin * 2}
             minHeight={80 + margin * 2}
             keepAspectRatio={false}
-            lineClassName="rounded-[28px] !border-2 !border-blue-500"
+            lineClassName="rounded-[28px] !border-[1.5px] !border-blue-500"
             handleClassName="!w-3 !h-3 !bg-blue-500 !border-2 !rounded-sm !border-white rounded-full shadow-md"
           />
         )
