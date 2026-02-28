@@ -1,5 +1,5 @@
 
-export type Tool = 'select' | 'rectangle' | 'circle' | 'arrow' | 'pan';
+export type Tool = 'select' | 'rectangle' | 'circle' | 'arrow' | 'pan_zoom';
 
 export type ActiveToolStoreType = {
   activeTool: Tool;

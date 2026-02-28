@@ -1,4 +1,5 @@
 import { ShapeNodeType, type ShapeNode } from "../types";
+import type { SidbarOption } from "../types/sidebar-types";
 
 export const tempNodes: ShapeNode[] = [
     {
@@ -17,12 +18,28 @@ export const tempNodes: ShapeNode[] = [
         width: 300,
         height: 250,
     },
+]
+
+
+export const sidebarOptionList:SidbarOption[]=[
     {
-        id: "temp3a",
-        position: {x: 1200, y: 200},
-        type: ShapeNodeType.circle,
-        data:{textContent:"cir-5"},
-        width: 240,
-        height: 240,
-    }
+        title: "Select",
+        key:"select",
+    },
+    {
+        title: "Rectangle",
+        key:"rectangle",
+    },
+    {
+        title: "Circle",
+        key:"circle",
+    },
+    {
+        title: "Arrow",
+        key:"arrow",
+    },
+    {
+        title: "Pan/Zoom",
+        key:"pan_zoom",
+    },
 ]
