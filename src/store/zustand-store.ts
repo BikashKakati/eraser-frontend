@@ -1,8 +1,7 @@
 import { create } from "zustand";
-import type { StoreState } from "../types/zustand-types";
+import type { ActiveToolStoreType } from "../types/zustand-types";
 
-export const useStore = create<StoreState>((set) => ({
-  activeTool: "select",
+export const useActiveToolStore = create<ActiveToolStoreType>((set) => ({
+  activeTool: "arrow",
   setActiveTool: (tool) => set({ activeTool: tool }),
 }));
-
