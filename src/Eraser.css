@@ -8,8 +8,15 @@
 }
 
 
-/* Change the cursor when the arrow tool is active */
-.arrow-tool-active .react-flow__pane {
+/* Custom cursors based on active tool */
+.tool-arrow .react-flow__pane {
   cursor: crosshair;
 }
 
+.tool-rectangle .react-flow__pane {
+  cursor: crosshair;
+}
+
+.tool-select .react-flow__pane {
+  cursor: url("/select-cursor.svg") 1 1, auto;
+}
