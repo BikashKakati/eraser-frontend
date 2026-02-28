@@ -8,3 +8,8 @@
 }
 
 
+/* Change the cursor when the arrow tool is active */
+.arrow-tool-active .react-flow__pane {
+  cursor: crosshair;
+}
+

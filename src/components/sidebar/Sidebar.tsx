@@ -1,9 +1,9 @@
 import type React from "react";
-import { useStore } from "../../store/zustand-store";
+import { useActiveToolStore } from "../../store/zustand-store";
 import type { Tool } from "../../types/zustand-types";
 
 const Sidebar: React.FC = () => {
-  const { activeTool, setActiveTool } = useStore();
+  const { activeTool, setActiveTool } = useActiveToolStore();
 
   const getButtonClass = (tool: Tool) =>
     `w-full text-left p-3 rounded-lg transition-colors duration-200 ${
