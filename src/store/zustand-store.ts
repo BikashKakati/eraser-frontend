@@ -2,6 +2,6 @@ import { create } from "zustand";
 import type { ActiveToolStoreType } from "../types/zustand-types";
 
 export const useActiveToolStore = create<ActiveToolStoreType>((set) => ({
-  activeTool: "arrow",
+  activeTool: "select",
   setActiveTool: (tool) => set({ activeTool: tool }),
 }));

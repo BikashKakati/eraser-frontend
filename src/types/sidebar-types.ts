@@ -1,6 +1,6 @@
 import type { Tool } from "./zustand-types"
 
-export type SidbarOption = {
+export type SidebarOption = {
     title: string,
     key: Tool
 }
