@@ -9,14 +9,21 @@
 
 
 /* Custom cursors based on active tool */
-.tool-arrow .react-flow__pane {
-  cursor: crosshair;
+.tool-arrow .react-flow__pane,
+.tool-arrow .react-flow__node {
+  cursor: crosshair !important;
 }
 
-.tool-rectangle .react-flow__pane {
-  cursor: crosshair;
+.tool-rectangle .react-flow__pane,
+.tool-rectangle .react-flow__node {
+  cursor: crosshair !important;
 }
 
-.tool-select .react-flow__pane {
-  cursor: url("/select-cursor.svg") 1 1, auto;
+.tool-select .react-flow__pane,
+.tool-select .react-flow__node {
+  cursor: url("/select-cursor.svg") 1 1, auto !important;
+}
+
+.tool-select .react-flow__node:active {
+  cursor: url("/select-cursor.svg") 1 1, auto !important;
 }
