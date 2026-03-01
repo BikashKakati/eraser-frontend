@@ -4,3 +4,11 @@ export type SidebarOption = {
     title: string,
     key: Tool
 }
+
+export type SidebarTools = {
+    SELECT:Tool,
+    RECTANGLE: Tool,
+    CIRCLE:Tool,
+    ARROW:Tool,
+    PAN_ZOOM:Tool
+}

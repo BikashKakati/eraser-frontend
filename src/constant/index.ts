@@ -1,5 +1,5 @@
-import { ShapeNodeType, type ShapeNode } from "../types";
-import type { SidebarOption } from "../types/sidebar-types";
+import { type ShapeNode } from "../types";
+import type { SidebarOption, SidebarTools } from "../types/sidebar-types";
 
 export const tempNodes: ShapeNode[] = [
     // {
@@ -20,26 +20,33 @@ export const tempNodes: ShapeNode[] = [
     // },
 ]
 
+export const sidebarTools: SidebarTools= {
+    SELECT:"select",
+    RECTANGLE: "rectangle",
+    CIRCLE:"circle",
+    ARROW:"arrow",
+    PAN_ZOOM:"pan_zoom"
+}
 
 export const sidebarOptionList:SidebarOption[]=[
     {
         title: "Select",
-        key:"select",
+        key:sidebarTools.SELECT,
     },
     {
         title: "Rectangle",
-        key:"rectangle",
+        key: sidebarTools.RECTANGLE,
     },
     {
         title: "Circle",
-        key:"circle",
+        key: sidebarTools.CIRCLE,
     },
     {
         title: "Arrow",
-        key:"arrow",
+        key: sidebarTools.ARROW,
     },
     {
         title: "Pan/Zoom",
-        key:"pan_zoom",
+        key:sidebarTools.PAN_ZOOM,
     },
 ]
