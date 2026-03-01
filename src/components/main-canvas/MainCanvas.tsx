@@ -286,30 +286,9 @@ const MainCanvas: React.FC = () => {
 
   }, [anchorNodeDetails, setEdges, drawingShapeDetails, setActiveTool, setDrawingArrowFrom]);
 
-  // Derived nodes mapping to forcefully inject isVisible states to anchors depending on edge selection
-  const selectedEdgeIds = edges.filter(e => e.selected).map(e => ({ source: e.source, target: e.target }));
-
-  const processedNodes = nodes.map(node => {
-    if (node.type === 'anchor') {
-      // Is this anchor part of ANY currently selected edge?
-      const isPartOfSelectedEdge = selectedEdgeIds.some(
-        se => se.source === node.id || se.target === node.id
-      );
-
-      return {
-        ...node,
-        data: {
-          ...node.data,
-          isVisible: isPartOfSelectedEdge,
-        }
-      };
-    }
-    return node;
-  });
-
   return (
     <ReactFlow
-      nodes={processedNodes}
+      nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
