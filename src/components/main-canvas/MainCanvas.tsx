@@ -6,6 +6,7 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
+  applyNodeChanges,
   Position,
   type Connection,
   type NodeChange
@@ -56,7 +57,7 @@ const MainCanvas: React.FC = () => {
 
   const [drawingShapeDetails, setDrawingShapeDetails] = useState<DrawingShape | null>(null);
 
-  console.log("anchorNodeDetails", anchorNodeDetails);
+  // console.log("anchorNodeDetails", anchorNodeDetails);
   // console.log("drawingShapeId", drawingShapeId);
   // console.log("startPoint", startPoint);
 
@@ -64,6 +65,93 @@ const MainCanvas: React.FC = () => {
     if (activeTool === sidebarTools.ARROW) {
       return;
     }
+
+    const anchorPositionChanges = nodeChanges.filter(c =>
+      c.type === 'position' && nodes.find(n => n.id === (c as any).id)?.type === 'anchor'
+    );
+
+    if (anchorPositionChanges.length > 0) {
+      setNodes((existingNodes) => {
+        let nextNodes = applyNodeChanges(nodeChanges, existingNodes) as AppNode[];
+
+        return nextNodes.map(node => {
+          const change = anchorPositionChanges.find(c => (c as any).id === node.id);
+          if (change && change.type === 'position' && node.type === 'anchor') {
+            const absPos = change.positionAbsolute || node.position;
+
+            let targetPosition = absPos;
+            let activeTargetHandlePosition: Position | undefined = undefined;
+            let activeSnappedParentId: string | undefined = undefined;
+
+            const PADDING = 20;
+
+            for (const rectNode of existingNodes) {
+              if (rectNode.type === ShapeNodeType.rectangle && rectNode.position) {
+                const localX = absPos.x - rectNode.position.x;
+                const localY = absPos.y - rectNode.position.y;
+                const width = rectNode.width ?? 320;
+                const height = rectNode.height ?? 192;
+
+                const margin = 8;
+                const leftMargin = margin;
+                const rightMargin = width + margin;
+                const topMargin = margin;
+                const bottomMargin = height + margin;
+
+                const inXBounds = localX >= -PADDING && localX <= width + margin * 2 + PADDING;
+                const inYBounds = localY >= -PADDING && localY <= height + margin * 2 + PADDING;
+
+                if (inXBounds && inYBounds) {
+                  const distLeft = Math.abs(localX - leftMargin);
+                  const distRight = Math.abs(localX - rightMargin);
+                  const distTop = Math.abs(localY - topMargin);
+                  const distBottom = Math.abs(localY - bottomMargin);
+
+                  const minDist = Math.min(distLeft, distRight, distTop, distBottom);
+                  if (minDist <= PADDING) {
+                    let localSnappedX = localX;
+                    let localSnappedY = localY;
+                    let targetHandlePos = Position.Top;
+
+                    if (minDist === distLeft) {
+                      localSnappedX = leftMargin;
+                      targetHandlePos = Position.Left;
+                    } else if (minDist === distRight) {
+                      localSnappedX = rightMargin;
+                      targetHandlePos = Position.Right;
+                    } else if (minDist === distTop) {
+                      localSnappedY = topMargin;
+                      targetHandlePos = Position.Top;
+                    } else if (minDist === distBottom) {
+                      localSnappedY = bottomMargin;
+                      targetHandlePos = Position.Bottom;
+                    }
+
+                    targetPosition = { x: localSnappedX, y: localSnappedY };
+                    activeTargetHandlePosition = targetHandlePos;
+                    activeSnappedParentId = rectNode.id;
+                    break;
+                  }
+                }
+              }
+            }
+
+            return {
+              ...node,
+              position: targetPosition,
+              parentId: activeSnappedParentId,
+              data: {
+                ...node.data,
+                handlePosition: activeTargetHandlePosition
+              }
+            } as AppNode;
+          }
+          return node;
+        });
+      });
+      return;
+    }
+
     onNodesChange(nodeChanges);
   }
 
