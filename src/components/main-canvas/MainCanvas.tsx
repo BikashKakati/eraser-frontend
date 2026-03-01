@@ -95,6 +95,7 @@ const MainCanvas: React.FC = () => {
         data: { identityType: "source", handlePosition: drawingArrowFrom.handlePosition },
         draggable: false,
         selectable: false,
+        zIndex: 2000,
       };
 
       const targetNode: AnchorNodeType = {
@@ -104,6 +105,7 @@ const MainCanvas: React.FC = () => {
         data: { identityType: "target" },
         draggable: false,
         selectable: false,
+        zIndex: 2000,
       };
 
       const previewEdge: CustomEdge = {
