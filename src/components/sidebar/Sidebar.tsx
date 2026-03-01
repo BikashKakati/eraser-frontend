@@ -21,6 +21,7 @@ const Sidebar: React.FC = () => {
         {
           sidebarOptionList.map((option) => (
             <button
+              key={option.key}
               onClick={() => setActiveTool(option.key)}
               className={getButtonClass(option.key)}
             >

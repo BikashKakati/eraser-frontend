@@ -1,4 +1,4 @@
-import type { Edge, Node } from '@xyflow/react';
+import type { Edge, Node, Position } from '@xyflow/react';
 
 
 
@@ -23,7 +23,7 @@ export type EdgeData = {
   arrowText?:string,
 }
 
-export type AnchorData = {text?:string, identityType:"source"|"target"}
+export type AnchorData = {text?:string, identityType:"source"|"target", isVisible?: boolean, handlePosition?: Position}
 
 export type ShapeNode = Node<ShapeNodeData, ShapeNodeType>;
 export type AnchorNodeType = Node<AnchorData, "anchor">;

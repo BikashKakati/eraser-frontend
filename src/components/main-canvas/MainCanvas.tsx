@@ -6,6 +6,7 @@ import {
   useEdgesState,
   useNodesState,
   useReactFlow,
+  Position,
   type Connection,
   type NodeChange
 } from "@xyflow/react";
@@ -13,11 +14,12 @@ import {
 import {
   useCallback,
   useState,
+  useEffect,
   type MouseEvent as ReactMouseEvent
 } from "react";
 
 
-import { tempNodes } from "../../constant";
+import { sidebarTools, tempNodes } from "../../constant";
 import { useActiveToolStore } from "../../store/zustand-store";
 import { EdgeTypes, ShapeNodeType, type AnchorNodeType, type AppNode, type CustomEdge, type ShapeNode } from "../../types";
 import ConnectionLine from "../connection-line/ConnectionLine";
@@ -26,6 +28,7 @@ import AnchorNode from "../custom-nodes/AnchorNode";
 import CircleNode from "../custom-nodes/circle/CircleNode";
 import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
 import { getUniqueId } from "../utils";
+import type { DrawingShape } from "../../types/canvas-types";
 
 
 const nodeTypes = {
@@ -41,20 +44,24 @@ const edgeTypes = {
 const MainCanvas: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(tempNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<CustomEdge>([]);
-  const { activeTool, setActiveTool } = useActiveToolStore();
-  console.log(activeTool);
+  const { activeTool, setActiveTool, drawingArrowFrom, setDrawingArrowFrom } = useActiveToolStore();
+  // console.log(activeTool);
 
   const { screenToFlowPosition } = useReactFlow<AppNode, CustomEdge>();
 
-  console.log(nodes);
-  console.log(edges);
+  // console.log(nodes);
+  // console.log(edges);
 
   const [anchorNodeDetails, setAnchorNodeDetails] = useState<{ sourceNodeId: string, targetNodeId: string } | null>(null);
-  const [drawingShapeId, setDrawingShapeId] = useState<string | null>(null);
-  const [startPoint, setStartPoint] = useState<{ x: number, y: number } | null>(null);
+
+  const [drawingShapeDetails, setDrawingShapeDetails] = useState<DrawingShape | null>(null);
+
+  console.log("anchorNodeDetails", anchorNodeDetails);
+  // console.log("drawingShapeId", drawingShapeId);
+  // console.log("startPoint", startPoint);
 
   function handleNodeChange(nodeChanges: NodeChange<AppNode>[]) {
-    if (activeTool === "arrow") {
+    if (activeTool === sidebarTools.ARROW) {
       return;
     }
     onNodesChange(nodeChanges);
@@ -70,40 +77,60 @@ const MainCanvas: React.FC = () => {
     setEdges((existingEdges) => addEdge(newEdge, existingEdges));
   }
 
+  // Use effect to listen for external drawing starts (like from a rectangle border)
+  useEffect(() => {
+    if (drawingArrowFrom && !anchorNodeDetails) {
+      const flowPosition = screenToFlowPosition({ x: drawingArrowFrom.x, y: drawingArrowFrom.y });
+
+      const sourceNodeId = `anchor-${getUniqueId()}`;
+      const targetNodeId = `anchor-${getUniqueId()}`;
+
+      const sourceNode: AnchorNodeType = {
+        id: sourceNodeId,
+        type: "anchor",
+        position: drawingArrowFrom.parentId && drawingArrowFrom.relativeX !== undefined && drawingArrowFrom.relativeY !== undefined
+          ? { x: drawingArrowFrom.relativeX, y: drawingArrowFrom.relativeY }
+          : flowPosition,
+        parentId: drawingArrowFrom.parentId,
+        data: { identityType: "source", handlePosition: drawingArrowFrom.handlePosition },
+        draggable: false,
+        selectable: false,
+      };
+
+      const targetNode: AnchorNodeType = {
+        id: targetNodeId,
+        type: "anchor",
+        position: flowPosition,
+        data: { identityType: "target" },
+        draggable: false,
+        selectable: false,
+      };
+
+      const previewEdge: CustomEdge = {
+        id: `edge-${sourceNodeId}-${targetNodeId}`,
+        source: sourceNodeId,
+        target: targetNodeId,
+        type: EdgeTypes.connectableArrow,
+        markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: '#000' },
+      };
+
+
+      setNodes((nds) => nds.concat([sourceNode, targetNode]));
+      setEdges((eds) => eds.concat([previewEdge]));
+      setAnchorNodeDetails({ sourceNodeId, targetNodeId });
+    }
+  }, [drawingArrowFrom, screenToFlowPosition, setNodes, setEdges, anchorNodeDetails]);
+
   // Handler to start drawing a free-floating arrow or rectangle
   const handleMouseDown = useCallback(
     (event: ReactMouseEvent) => {
-      if ((activeTool !== 'arrow' && activeTool !== 'rectangle') || event.button !== 0) return;
+      if ((activeTool !== sidebarTools.RECTANGLE) || event.button !== 0) return;
 
       event.preventDefault();
 
       const flowPosition = screenToFlowPosition({ x: event.clientX, y: event.clientY });
 
-      if (activeTool === 'arrow') {
-        const sourceNodeId = `anchor-${getUniqueId()}`;
-        const targetNodeId = `anchor-${getUniqueId()}`;
-
-        const sourceNode: AnchorNodeType = {
-          id: sourceNodeId,
-          type: "anchor",
-          position: flowPosition,
-          data: { identityType: "source" },
-          draggable: false,
-          selectable: false,
-        };
-
-        const targetNode: AnchorNodeType = {
-          id: targetNodeId,
-          type: "anchor",
-          position: flowPosition,
-          data: { identityType: "target" },
-          draggable: false,
-          selectable: false,
-        };
-
-        setNodes((nds) => nds.concat([sourceNode, targetNode]));
-        setAnchorNodeDetails({ sourceNodeId, targetNodeId });
-      } else if (activeTool === 'rectangle') {
+      if (activeTool === sidebarTools.RECTANGLE) {
         const newShapeId = `rect-${getUniqueId()}`;
         const newNode: ShapeNode = {
           id: newShapeId,
@@ -115,8 +142,7 @@ const MainCanvas: React.FC = () => {
           selected: true,
         };
         setNodes((nds) => nds.concat([newNode]));
-        setDrawingShapeId(newShapeId);
-        setStartPoint(flowPosition);
+        setDrawingShapeDetails({ id: newShapeId, startPosition: flowPosition })
       }
 
     }, [activeTool, screenToFlowPosition, setNodes]
@@ -124,28 +150,95 @@ const MainCanvas: React.FC = () => {
 
   const handleMouseMove = useCallback(
     (event: ReactMouseEvent) => {
-      if (!anchorNodeDetails && !drawingShapeId) return;
+      if (!anchorNodeDetails && !drawingShapeDetails) return;
 
       const flowPosition = screenToFlowPosition({ x: event.clientX, y: event.clientY });
 
       if (anchorNodeDetails) {
-        setNodes((existingNodes) =>
-          existingNodes.map((node) => {
-            if (node.id === anchorNodeDetails.targetNodeId) {
-              return { ...node, position: flowPosition };
+        setNodes((existingNodes) => {
+          let targetPosition = flowPosition;
+          let activeSnappedParentId: string | undefined = undefined;
+          let activeTargetHandlePosition: Position | undefined = undefined;
+
+          // Sticky logic: check if cursor is over any rectangle node borders
+          const PADDING = 20; // snapping radius
+
+          for (const node of existingNodes) {
+            if (node.type === ShapeNodeType.rectangle && node.position) {
+              const width = node.width ?? 320;
+              const height = node.height ?? 192;
+
+              const localX = targetPosition.x - node.position.x;
+              const localY = targetPosition.y - node.position.y;
+
+              const margin = 8;
+              const leftMargin = margin;
+              const rightMargin = width + margin * 2 - margin;
+              const topMargin = margin;
+              const bottomMargin = height + margin * 2 - margin;
+
+              const inXBounds = localX >= -PADDING && localX <= width + margin * 2 + PADDING;
+              const inYBounds = localY >= -PADDING && localY <= height + margin * 2 + PADDING;
+
+              if (inXBounds && inYBounds) {
+                const distLeft = Math.abs(localX - leftMargin);
+                const distRight = Math.abs(localX - rightMargin);
+                const distTop = Math.abs(localY - topMargin);
+                const distBottom = Math.abs(localY - bottomMargin);
+
+                const minDist = Math.min(distLeft, distRight, distTop, distBottom);
+                if (minDist <= PADDING) {
+                  let localSnappedX = localX;
+                  let localSnappedY = localY;
+                  let targetHandlePosition: Position = Position.Top;
+                  if (minDist === distLeft) {
+                    localSnappedX = leftMargin;
+                    targetHandlePosition = Position.Left;
+                  } else if (minDist === distRight) {
+                    localSnappedX = rightMargin;
+                    targetHandlePosition = Position.Right;
+                  } else if (minDist === distTop) {
+                    localSnappedY = topMargin;
+                    targetHandlePosition = Position.Top;
+                  } else if (minDist === distBottom) {
+                    localSnappedY = bottomMargin;
+                    targetHandlePosition = Position.Bottom;
+                  }
+                  targetPosition = { x: localSnappedX, y: localSnappedY };
+                  activeSnappedParentId = node.id;
+                  activeTargetHandlePosition = targetHandlePosition;
+                  break;
+                }
+              }
             }
-            return node;
-          })
-        );
-      } else if (drawingShapeId && startPoint && activeTool === 'rectangle') {
+          }
+
+          return existingNodes.map((node): AppNode => {
+            if (node.id === anchorNodeDetails.targetNodeId) {
+              return {
+                ...node,
+                position: targetPosition,
+                parentId: activeSnappedParentId,
+                data: {
+                  ...node.data,
+                  handlePosition: activeTargetHandlePosition
+                }
+              } as AppNode;
+            }
+            return node as AppNode;
+          });
+        });
+      } else if (drawingShapeDetails && activeTool === sidebarTools.RECTANGLE) {
+        const { id, startPosition } = drawingShapeDetails;
+
         setNodes((existingNodes) =>
           existingNodes.map((node) => {
-            if (node.id === drawingShapeId) {
-              const width = Math.abs(flowPosition.x - startPoint.x);
-              const height = Math.abs(flowPosition.y - startPoint.y);
+            if (node.id === id) {
+              const width = Math.abs(flowPosition.x - startPosition!.x);
+              const height = Math.abs(flowPosition.y - startPosition!.y);
               const position = {
-                x: Math.min(flowPosition.x, startPoint.x),
-                y: Math.min(flowPosition.y, startPoint.y)
+                x: Math.min(flowPosition.x, startPosition!.x),
+                y: Math.min(flowPosition.y, startPosition!.y)
               };
               return { ...node, position, width, height };
             }
@@ -153,36 +246,68 @@ const MainCanvas: React.FC = () => {
           })
         );
       }
-    }, [screenToFlowPosition, setNodes, anchorNodeDetails, drawingShapeId, startPoint, activeTool]
+    }, [screenToFlowPosition, setNodes, anchorNodeDetails, drawingShapeDetails, activeTool]
   );
 
-  // Handler to finalize the arrow or rectangle drawing
   const handleMouseUp = useCallback(() => {
     if (anchorNodeDetails) {
       const { sourceNodeId, targetNodeId } = anchorNodeDetails;
 
-      const newEdge: CustomEdge = {
-        id: `edge-${sourceNodeId}-${targetNodeId}`,
-        source: sourceNodeId,
-        target: targetNodeId,
-        type: EdgeTypes.connectableArrow,
-        markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: '#000' },
-      };
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === sourceNodeId || n.id === targetNodeId) {
+            return { ...n, draggable: true, selectable: true };
+          }
+          return n;
+        })
+      );
 
-      setEdges((existingEdges) => addEdge(newEdge, existingEdges));
+      const edgeId = `edge-${sourceNodeId}-${targetNodeId}`;
+
+      // Only active recently added arrow
+      setEdges((existingEdges) => {
+        return existingEdges.map(e => {
+          if (e.id === edgeId) {
+            return { ...e, selected: true };
+          }
+          return { ...e, selected: false };
+        });
+      });
+
       setAnchorNodeDetails(null);
-    } else if (drawingShapeId) {
-      setDrawingShapeId(null);
-      setStartPoint(null);
-      setActiveTool('select');
+      setDrawingArrowFrom(null);
+      setActiveTool(sidebarTools.SELECT);
+    } else if (drawingShapeDetails) {
+      setDrawingShapeDetails(null);
+      setActiveTool(sidebarTools.SELECT);
     }
 
-  }, [anchorNodeDetails, setEdges, drawingShapeId, setActiveTool]);
+  }, [anchorNodeDetails, setEdges, drawingShapeDetails, setActiveTool, setDrawingArrowFrom]);
 
+  // Derived nodes mapping to forcefully inject isVisible states to anchors depending on edge selection
+  const selectedEdgeIds = edges.filter(e => e.selected).map(e => ({ source: e.source, target: e.target }));
+
+  const processedNodes = nodes.map(node => {
+    if (node.type === 'anchor') {
+      // Is this anchor part of ANY currently selected edge?
+      const isPartOfSelectedEdge = selectedEdgeIds.some(
+        se => se.source === node.id || se.target === node.id
+      );
+
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          isVisible: isPartOfSelectedEdge,
+        }
+      };
+    }
+    return node;
+  });
 
   return (
     <ReactFlow
-      nodes={nodes}
+      nodes={processedNodes}
       edges={edges}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
@@ -199,10 +324,10 @@ const MainCanvas: React.FC = () => {
       className={`tool-${activeTool}`}
 
       // Prevents the canvas from panning when a drawing tool is active
-      panOnDrag={activeTool === 'select' || activeTool === 'pan_zoom'}
+      panOnDrag={activeTool === sidebarTools.SELECT || activeTool === sidebarTools.PAN_ZOOM}
 
       // Prevents nodes from being dragged when a drawing tool is active
-      nodesDraggable={activeTool === 'select'}
+      nodesDraggable={activeTool === sidebarTools.SELECT}
     />
   );
 };
