@@ -10,12 +10,18 @@ const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
   sourcePosition,
   targetPosition,
   markerEnd,
+  selected
 }) => {
-  const [stepTypePath] = getSmoothStepPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition})
+  const [stepTypePath] = getSmoothStepPath({
+    sourceX, sourceY, targetX, targetY,
+    sourcePosition,
+    targetPosition
+  })
 
-  
+  const isSelected = selected;
+
   return (
-    <BaseEdge path={stepTypePath} markerEnd={markerEnd} style={{stroke:"#000", strokeWidth:1.5}}/>
+    <BaseEdge path={stepTypePath} markerEnd={markerEnd} style={{ stroke: isSelected ? "#2563eb" : "#000", strokeWidth: isSelected ? 1.5 : 1 }} />
   );
 };
 
