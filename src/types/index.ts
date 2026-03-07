@@ -23,7 +23,11 @@ export type EdgeData = {
   arrowText?:string,
 }
 
-export type AnchorData = {text?:string, identityType:"source"|"target", isVisible?: boolean, handlePosition?: Position}
+export type AnchorData = {
+  text?:string, 
+  identityType:"source"|"target", 
+  handlePosition?: Position
+}
 
 export type ShapeNode = Node<ShapeNodeData, ShapeNodeType>;
 export type AnchorNodeType = Node<AnchorData, "anchor">;
