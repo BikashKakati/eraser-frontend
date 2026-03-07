@@ -233,7 +233,7 @@ const MainCanvas: React.FC = () => {
   // Handler to start drawing a free-floating arrow or rectangle
   const handleMouseDown = useCallback(
     (event: ReactMouseEvent) => {
-      if ((activeTool !== sidebarTools.RECTANGLE) || event.button !== 0) return;
+      if ((activeTool !== sidebarTools.RECTANGLE && activeTool !== sidebarTools.ARROW) || event.button !== 0) return;
 
       event.preventDefault();
 
@@ -252,9 +252,14 @@ const MainCanvas: React.FC = () => {
         };
         setNodes((nds) => nds.concat([newNode]));
         setDrawingShapeDetails({ id: newShapeId, startPosition: flowPosition })
+      } else if (activeTool === sidebarTools.ARROW) {
+        setDrawingArrowFrom({
+          x: event.clientX,
+          y: event.clientY,
+        });
       }
 
-    }, [activeTool, screenToFlowPosition, setNodes]
+    }, [activeTool, screenToFlowPosition, setNodes, setDrawingArrowFrom]
   );
 
   const handleMouseMove = useCallback(
