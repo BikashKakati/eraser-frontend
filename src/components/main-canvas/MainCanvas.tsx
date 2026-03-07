@@ -77,7 +77,22 @@ const MainCanvas: React.FC = () => {
         return nextNodes.map(node => {
           const change = anchorPositionChanges.find(c => (c as any).id === node.id);
           if (change && change.type === 'position' && node.type === 'anchor') {
-            const absPos = change.positionAbsolute || node.position;
+            let absPos = change.positionAbsolute;
+
+            // If dragging finished (no positionAbsolute), we must derive the actual absolute position reliably 
+            // from the node's relative position and its parent.
+            if (!absPos) {
+              absPos = node.position;
+              if (node.parentId) {
+                const parentNode = existingNodes.find(n => n.id === node.parentId);
+                if (parentNode && parentNode.position) {
+                  absPos = {
+                    x: node.position.x + parentNode.position.x,
+                    y: node.position.y + parentNode.position.y
+                  };
+                }
+              }
+            }
 
             let targetPosition = absPos;
             let activeTargetHandlePosition: Position | undefined = undefined;
@@ -89,17 +104,21 @@ const MainCanvas: React.FC = () => {
               if (rectNode.type === ShapeNodeType.rectangle && rectNode.position) {
                 const localX = absPos.x - rectNode.position.x;
                 const localY = absPos.y - rectNode.position.y;
-                const width = rectNode.width ?? 320;
-                const height = rectNode.height ?? 192;
 
                 const margin = 8;
-                const leftMargin = margin;
-                const rightMargin = width + margin;
-                const topMargin = margin;
-                const bottomMargin = height + margin;
+                const nodeWidth = rectNode.width ?? 320;
+                const nodeHeight = rectNode.height ?? 192;
 
-                const inXBounds = localX >= -PADDING && localX <= width + margin * 2 + PADDING;
-                const inYBounds = localY >= -PADDING && localY <= height + margin * 2 + PADDING;
+                const wrapperWidth = nodeWidth + margin * 2;
+                const wrapperHeight = nodeHeight + margin * 2;
+
+                const leftMargin = margin;
+                const rightMargin = wrapperWidth - margin;
+                const topMargin = margin;
+                const bottomMargin = wrapperHeight - margin;
+
+                const inXBounds = localX >= -PADDING && localX <= wrapperWidth + PADDING;
+                const inYBounds = localY >= -PADDING && localY <= wrapperHeight + PADDING;
 
                 if (inXBounds && inYBounds) {
                   const distLeft = Math.abs(localX - leftMargin);
@@ -255,20 +274,23 @@ const MainCanvas: React.FC = () => {
 
           for (const node of existingNodes) {
             if (node.type === ShapeNodeType.rectangle && node.position) {
-              const width = node.width ?? 320;
-              const height = node.height ?? 192;
+              const margin = 8;
+              const nodeWidth = node.width ?? 320;
+              const nodeHeight = node.height ?? 192;
+
+              const wrapperWidth = nodeWidth + margin * 2;
+              const wrapperHeight = nodeHeight + margin * 2;
 
               const localX = targetPosition.x - node.position.x;
               const localY = targetPosition.y - node.position.y;
 
-              const margin = 8;
               const leftMargin = margin;
-              const rightMargin = width + margin * 2 - margin;
+              const rightMargin = wrapperWidth - margin;
               const topMargin = margin;
-              const bottomMargin = height + margin * 2 - margin;
+              const bottomMargin = wrapperHeight - margin;
 
-              const inXBounds = localX >= -PADDING && localX <= width + margin * 2 + PADDING;
-              const inYBounds = localY >= -PADDING && localY <= height + margin * 2 + PADDING;
+              const inXBounds = localX >= -PADDING && localX <= wrapperWidth + PADDING;
+              const inYBounds = localY >= -PADDING && localY <= wrapperHeight + PADDING;
 
               if (inXBounds && inYBounds) {
                 const distLeft = Math.abs(localX - leftMargin);
