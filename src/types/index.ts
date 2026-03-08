@@ -35,3 +35,13 @@ export type AppNode =
 |AnchorNodeType
 |ShapeNode
 export type CustomEdge = Edge<EdgeData, EdgeTypes>;
+
+
+export interface EditableTextProps {
+    initialText: string;
+    onSave: (text: string) => void;
+    onCancel?: () => void;
+    isEditing: boolean;
+    className?: string;
+    style?: React.CSSProperties;
+}

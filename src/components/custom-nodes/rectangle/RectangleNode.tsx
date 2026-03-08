@@ -1,8 +1,9 @@
 // RectangleNode.tsx
-import { NodeResizer, Position, type NodeProps } from '@xyflow/react';
+import { NodeResizer, Position, useReactFlow, type NodeProps } from '@xyflow/react';
 import React, { useRef, useState, useCallback } from 'react';
 import type { ShapeNode } from '../../../types';
 import { useActiveToolStore } from '../../../store/zustand-store';
+import EditableText from '../../common/EditableText';
 
 
 const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
@@ -19,12 +20,42 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
   const STROKE_WIDTH = 1; // same as border-[2px]
 
   const { activeTool, setDrawingArrowFrom } = useActiveToolStore();
+  const { setNodes } = useReactFlow();
 
   const [hoverPos, setHoverPos] = useState<{ x: number, y: number, handlePosition: Position } | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const handleDoubleClick = useCallback(() => {
+    if (selected) {
+      setIsEditing(true);
+    }
+  }, [selected]);
+
+  const handleSave = useCallback((newText: string) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              textContent: newText,
+            },
+          };
+        }
+        return node;
+      })
+    );
+    setIsEditing(false);
+  }, [id, setNodes]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+  }, []);
+
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current || activeTool !== 'arrow') return;
+    if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -60,7 +91,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     } else {
       setHoverPos(null);
     }
-  }, [wrapperWidth, wrapperHeight, activeTool]);
+  }, [wrapperWidth, wrapperHeight, activeTool, isEditing]);
 
   const handleMouseLeave = () => {
     setHoverPos(null);
@@ -83,10 +114,6 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     }
   };
 
-
-
-
-
   return (
     <div
       ref={containerRef}
@@ -94,6 +121,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
       style={{ width: wrapperWidth, height: wrapperHeight }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onDoubleClick={handleDoubleClick}
     >
 
       <svg
@@ -113,8 +141,13 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
         />
       </svg>
 
-      <div style={{ position: 'absolute', left: margin, top: margin, width: nodeWidth, height: nodeHeight, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-        <p className="text-center select-none px-2">{data.textContent}</p>
+      <div style={{ position: 'absolute', left: margin, top: margin, width: nodeWidth, height: nodeHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <EditableText
+          initialText={data.textContent || ''}
+          isEditing={isEditing}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
       </div>
 
       {hoverPos && activeTool === 'arrow' && (
