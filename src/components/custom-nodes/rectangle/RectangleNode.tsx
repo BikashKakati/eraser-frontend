@@ -59,7 +59,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     setContentSize(size);
 
     if (isEditing) {
-      const padding = 20;
+      const padding = 8; // Even tighter padding
       const requiredHeight = size.height + padding;
 
       if (requiredHeight > nodeHeight) {
@@ -78,8 +78,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     }
   }, [isEditing, nodeHeight, id, setNodes]);
 
-  const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width + 20);
-  const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height + 20);
+  const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width + 8);
+  const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height + 8);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;

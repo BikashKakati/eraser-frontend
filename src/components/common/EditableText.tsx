@@ -12,19 +12,28 @@ const EditableText: React.FC<EditableTextProps> = ({
 }) => {
     const editableRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!editableRef.current || !onContentSizeChange) return;
+    const reportSize = React.useCallback(() => {
+        if (onContentSizeChange && editableRef.current) {
+            onContentSizeChange({
+                width: editableRef.current.scrollWidth,
+                height: editableRef.current.scrollHeight
+            });
+        }
+    }, [onContentSizeChange]);
 
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                const { width, height } = entry.contentRect;
-                onContentSizeChange({ width, height });
-            }
+    useEffect(() => {
+        if (!editableRef.current) return;
+
+        const observer = new ResizeObserver(() => {
+            reportSize();
         });
 
         observer.observe(editableRef.current);
+        // Initial report
+        reportSize();
+
         return () => observer.disconnect();
-    }, [onContentSizeChange]);
+    }, [reportSize, isEditing]);
 
     useEffect(() => {
         if (isEditing && editableRef.current) {
@@ -46,12 +55,7 @@ const EditableText: React.FC<EditableTextProps> = ({
     };
 
     const handleInput = () => {
-        if (onContentSizeChange && editableRef.current) {
-            onContentSizeChange({
-                width: editableRef.current.offsetWidth,
-                height: editableRef.current.offsetHeight
-            });
-        }
+        reportSize();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -63,7 +67,11 @@ const EditableText: React.FC<EditableTextProps> = ({
 
     if (!isEditing) {
         return (
-            <div className={`whitespace-pre-wrap break-words text-center px-2 select-none pointer-events-none ${className}`} style={style}>
+            <div
+                ref={editableRef}
+                className={`whitespace-pre-wrap break-words text-center px-2 select-none pointer-events-none w-full ${className}`}
+                style={{ ...style, height: 'fit-content' }}
+            >
                 {initialText}
             </div>
         );
@@ -77,10 +85,11 @@ const EditableText: React.FC<EditableTextProps> = ({
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            className={`outline-none whitespace-pre-wrap break-words text-center px-2 w-full max-h-full overflow-hidden ${className}`}
+            className={`outline-none whitespace-pre-wrap break-words text-center px-2 w-full overflow-hidden ${className}`}
             style={{
                 ...style,
                 minWidth: '10px',
+                height: 'fit-content',
                 cursor: 'text',
             }}
         >
