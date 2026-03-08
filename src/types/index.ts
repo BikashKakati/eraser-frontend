@@ -44,4 +44,5 @@ export interface EditableTextProps {
     isEditing: boolean;
     className?: string;
     style?: React.CSSProperties;
+    onContentSizeChange?: (size: { width: number; height: number }) => void;
 }

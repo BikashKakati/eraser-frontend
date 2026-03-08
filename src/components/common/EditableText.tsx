@@ -8,8 +8,23 @@ const EditableText: React.FC<EditableTextProps> = ({
     isEditing,
     className = '',
     style = {},
+    onContentSizeChange,
 }) => {
     const editableRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!editableRef.current || !onContentSizeChange) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                const { width, height } = entry.contentRect;
+                onContentSizeChange({ width, height });
+            }
+        });
+
+        observer.observe(editableRef.current);
+        return () => observer.disconnect();
+    }, [onContentSizeChange]);
 
     useEffect(() => {
         if (isEditing && editableRef.current) {
@@ -27,6 +42,15 @@ const EditableText: React.FC<EditableTextProps> = ({
     const handleBlur = () => {
         if (isEditing) {
             onSave(editableRef.current?.innerText || '');
+        }
+    };
+
+    const handleInput = () => {
+        if (onContentSizeChange && editableRef.current) {
+            onContentSizeChange({
+                width: editableRef.current.offsetWidth,
+                height: editableRef.current.offsetHeight
+            });
         }
     };
 
@@ -52,10 +76,11 @@ const EditableText: React.FC<EditableTextProps> = ({
             suppressContentEditableWarning
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
+            onInput={handleInput}
             className={`outline-none whitespace-pre-wrap break-words text-center px-2 w-full max-h-full overflow-hidden ${className}`}
             style={{
                 ...style,
-                minWidth: '20px',
+                minWidth: '10px',
                 cursor: 'text',
             }}
         >

@@ -24,6 +24,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
 
   const [hoverPos, setHoverPos] = useState<{ x: number, y: number, handlePosition: Position } | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [contentSize, setContentSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleDoubleClick = useCallback(() => {
@@ -53,6 +54,32 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
   const handleCancel = useCallback(() => {
     setIsEditing(false);
   }, []);
+
+  const handleContentSizeChange = useCallback((size: { width: number; height: number }) => {
+    setContentSize(size);
+
+    if (isEditing) {
+      const padding = 20;
+      const requiredHeight = size.height + padding;
+
+      if (requiredHeight > nodeHeight) {
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === id) {
+              return {
+                ...node,
+                height: requiredHeight,
+              };
+            }
+            return node;
+          })
+        );
+      }
+    }
+  }, [isEditing, nodeHeight, id, setNodes]);
+
+  const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width + 20);
+  const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height + 20);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;
@@ -147,6 +174,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
           isEditing={isEditing}
           onSave={handleSave}
           onCancel={handleCancel}
+          onContentSizeChange={handleContentSizeChange}
         />
       </div>
 
@@ -167,8 +195,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
           <NodeResizer
             nodeId={id}
             isVisible={selected}
-            minWidth={nodeMinWidth + margin * 2}
-            minHeight={nodeMinHeight + margin * 2}
+            minWidth={dynamicMinWidth + margin * 2}
+            minHeight={dynamicMinHeight + margin * 2}
             keepAspectRatio={false}
             lineClassName="rounded-[28px] !border-[1.3px] !border-blue-500"
             handleClassName="!w-2 !h-2 !bg-blue-500 !border-1 !rounded-xs !border-white rounded-full shadow-md"
