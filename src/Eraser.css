@@ -19,6 +19,11 @@
   cursor: crosshair !important;
 }
 
+.tool-ellipse .react-flow__pane,
+.tool-ellipse .react-flow__node {
+  cursor: crosshair !important;
+}
+
 .tool-select .react-flow__pane,
 .tool-select .react-flow__node {
   cursor: url("/select-cursor.svg") 1 1, auto !important;
