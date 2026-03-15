@@ -9,12 +9,12 @@ import EditableText from '../../common/EditableText';
 const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
   const nodeMinWidth = 100;
   const nodeMinHeight = 80;
-  const nodeWidth = width ?? 320;
-  const nodeHeight = height ?? 192;
   const margin = 8;
   const spaceBetweenSvgNRect = 6;
-  const wrapperWidth = nodeWidth + margin * 2;
-  const wrapperHeight = nodeHeight + margin * 2;
+  const wrapperWidth = width ?? 336;
+  const wrapperHeight = height ?? 208;
+  const nodeWidth = Math.max(0, wrapperWidth - margin * 2);
+  const nodeHeight = Math.max(0, wrapperHeight - margin * 2);
 
   const CORNER_RADIUS = 10; // rounded-[25px]
   const STROKE_WIDTH = 1; // same as border-[2px]
@@ -71,7 +71,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
             if (node.id === id) {
               return {
                 ...node,
-                height: requiredHeight,
+                height: requiredHeight + margin * 2,
               };
             }
             return node;

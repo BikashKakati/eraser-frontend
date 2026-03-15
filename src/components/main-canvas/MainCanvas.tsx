@@ -107,11 +107,8 @@ const MainCanvas: React.FC = () => {
                 const localY = absPos.y - shapeNode.position.y;
 
                 const margin = 8;
-                const nodeWidth = shapeNode.width ?? 320;
-                const nodeHeight = shapeNode.height ?? 192;
-
-                const wrapperWidth = nodeWidth + margin * 2;
-                const wrapperHeight = nodeHeight + margin * 2;
+                const wrapperWidth = shapeNode.width ?? 336;
+                const wrapperHeight = shapeNode.height ?? 208;
 
                 const leftMargin = margin;
                 const rightMargin = wrapperWidth - margin;
@@ -158,11 +155,10 @@ const MainCanvas: React.FC = () => {
                 const localY = absPos.y - shapeNode.position.y;
 
                 const margin = 8;
-                const nodeWidth = shapeNode.width ?? 240;
-                const nodeHeight = shapeNode.height ?? 240;
-
-                const wrapperWidth = nodeWidth + margin * 2;
-                const wrapperHeight = nodeHeight + margin * 2;
+                const wrapperWidth = shapeNode.width ?? 256;
+                const wrapperHeight = shapeNode.height ?? 256;
+                const nodeWidth = Math.max(0, wrapperWidth - margin * 2);
+                const nodeHeight = Math.max(0, wrapperHeight - margin * 2);
 
                 const cx = wrapperWidth / 2;
                 const cy = wrapperHeight / 2;
@@ -325,11 +321,8 @@ const MainCanvas: React.FC = () => {
           for (const node of existingNodes) {
             if (node.type === ShapeNodeType.rectangle && node.position) {
               const margin = 8;
-              const nodeWidth = node.width ?? 320;
-              const nodeHeight = node.height ?? 192;
-
-              const wrapperWidth = nodeWidth + margin * 2;
-              const wrapperHeight = nodeHeight + margin * 2;
+              const wrapperWidth = node.width ?? 336;
+              const wrapperHeight = node.height ?? 208;
 
               const localX = targetPosition.x - node.position.x;
               const localY = targetPosition.y - node.position.y;
@@ -374,10 +367,10 @@ const MainCanvas: React.FC = () => {
               }
             } else if (node.type === ShapeNodeType.ellipse && node.position) {
               const margin = 8;
-              const nodeWidth = node.width ?? 240;
-              const nodeHeight = node.height ?? 240;
-              const wrapperWidth = nodeWidth + margin * 2;
-              const wrapperHeight = nodeHeight + margin * 2;
+              const wrapperWidth = node.width ?? 256;
+              const wrapperHeight = node.height ?? 256;
+              const nodeWidth = Math.max(0, wrapperWidth - margin * 2);
+              const nodeHeight = Math.max(0, wrapperHeight - margin * 2);
 
               const localX = targetPosition.x - node.position.x;
               const localY = targetPosition.y - node.position.y;
