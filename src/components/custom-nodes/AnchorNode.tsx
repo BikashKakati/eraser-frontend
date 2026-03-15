@@ -17,7 +17,7 @@ const AnchorNode: React.FC<NodeProps<AnchorNodeType>> = ({ id, data, selected })
     const showHandle = isVisible && activeTool === sidebarTools.SELECT;
 
     return (
-        <div style={{ width: 12, height: 12, transform: 'translate(-50%, -50%)' }} className="relative flex justify-center items-center">
+        <div style={{ transform: 'translate(-50%, -50%)' }} className="relative flex justify-center items-center">
             <Handle
                 position={data.handlePosition || (identityType === 'source' ? Position.Top : Position.Bottom)}
                 type={identityType}
@@ -28,7 +28,7 @@ const AnchorNode: React.FC<NodeProps<AnchorNodeType>> = ({ id, data, selected })
             />
 
             <div
-                className={`w-3 h-3 bg-blue-500 border-2 border-white rounded-full transition-opacity duration-200 ${showHandle ? 'opacity-100 pointer-events-auto cursor-crosshair' : 'opacity-0 pointer-events-none'}`}
+                className={`w-[14px] h-[14px] bg-indigo-500 border-2 border-white rounded-full transition-all duration-200 ${showHandle ? 'opacity-100 pointer-events-auto cursor-crosshair hover:scale-125' : 'opacity-0 pointer-events-none'}`}
             />
         </div>
     );

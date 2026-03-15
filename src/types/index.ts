@@ -8,9 +8,14 @@ export enum ShapeNodeType {
 };
 
 export type ShapeNodeData = {
-  textContent?: string,
-  bgColor?:string,
-  borderColor?:string
+  content?: {
+    text?: string;
+    icon?: string;
+    image?: string;
+  };
+  textContent?: string; // Kept temporarily for backwards compatibility if needed, but we will migrate
+  bgColor?:string;
+  borderColor?:string;
 }
 
 export enum EdgeTypes {

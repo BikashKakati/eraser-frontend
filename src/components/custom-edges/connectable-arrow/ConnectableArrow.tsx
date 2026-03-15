@@ -28,7 +28,15 @@ const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
   const isSelected = selected || isEndpointSelected;
 
   return (
-    <BaseEdge path={stepTypePath} markerEnd={markerEnd} style={{ stroke: isSelected ? "#2563eb" : "#000", strokeWidth: isSelected ? 1.5 : 1 }} />
+    <BaseEdge
+      path={stepTypePath}
+      markerEnd={markerEnd}
+      style={{
+        stroke: isSelected ? "#6366f1" : "#64748b", // indigo-500 / slate-500
+        strokeWidth: 1
+      }}
+      className="transition-colors duration-200"
+    />
   );
 };
 

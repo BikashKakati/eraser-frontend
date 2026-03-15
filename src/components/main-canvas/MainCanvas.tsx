@@ -288,7 +288,7 @@ const MainCanvas: React.FC = () => {
           id: newShapeId,
           type: shapeType,
           position: flowPosition,
-          data: { textContent: "" },
+          data: { content: { text: "" } },
           width: 0,
           height: 0,
           selected: true,

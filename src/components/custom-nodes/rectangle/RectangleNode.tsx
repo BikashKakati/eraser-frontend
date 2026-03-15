@@ -41,7 +41,10 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
             ...node,
             data: {
               ...node.data,
-              textContent: newText,
+              content: {
+                ...(node.data?.content || {}),
+                text: newText,
+              },
             },
           };
         }
@@ -162,26 +165,28 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
           height={nodeHeight}
           rx={CORNER_RADIUS}
           ry={CORNER_RADIUS}
-          fill="transparent"
-          stroke="black"
-          strokeWidth={STROKE_WIDTH}
+          className={`
+            fill-transparent stroke-slate-500 stroke-[1]
+            ${selected ? '!stroke-slate-600 stroke-[1] shadow-md' : 'shadow-sm hover:shadow-md'}
+          `}
         />
       </svg>
 
       <div style={{ position: 'absolute', left: margin, top: margin, width: nodeWidth, height: nodeHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <EditableText
-          initialText={data.textContent || ''}
+          initialText={data.content?.text || data.textContent || ''}
           isEditing={isEditing}
           onSave={handleSave}
           onCancel={handleCancel}
           onContentSizeChange={handleContentSizeChange}
+          className="text-sm text-slate-700 leading-relaxed font-medium"
         />
       </div>
 
       {hoverPos && activeTool === 'arrow' && (
         <div
           onMouseDown={handleAnchorMouseDown}
-          className="absolute w-3 h-3 bg-blue-500 border-2 border-white rounded-full cursor-crosshair z-10"
+          className="absolute w-[14px] h-[14px] bg-indigo-500 border-2 border-white rounded-full cursor-crosshair z-10"
           style={{
             left: hoverPos.x,
             top: hoverPos.y,
@@ -198,8 +203,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
             minWidth={dynamicMinWidth + margin * 2}
             minHeight={dynamicMinHeight + margin * 2}
             keepAspectRatio={false}
-            lineClassName="rounded-[28px] !border-[1.3px] !border-blue-500"
-            handleClassName="!w-2 !h-2 !bg-blue-500 !border-1 !rounded-xs !border-white rounded-full shadow-md"
+            lineClassName="!border-indigo-400 rounded-xl !border-[1.2px]"
+            handleClassName="!w-2 !h-2 !bg-white !border-2 !border-indigo-500 rounded-full shadow-sm"
           />
         )
 

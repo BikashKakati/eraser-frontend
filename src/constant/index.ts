@@ -27,26 +27,3 @@ export const sidebarTools: SidebarTools= {
     ARROW:"arrow",
     PAN_ZOOM:"pan_zoom"
 }
-
-export const sidebarOptionList:SidebarOption[]=[
-    {
-        title: "Select",
-        key:sidebarTools.SELECT,
-    },
-    {
-        title: "Rectangle",
-        key: sidebarTools.RECTANGLE,
-    },
-    {
-        title: "Ellipse",
-        key: sidebarTools.ELLIPSE,
-    },
-    {
-        title: "Arrow",
-        key: sidebarTools.ARROW,
-    },
-    {
-        title: "Pan/Zoom",
-        key:sidebarTools.PAN_ZOOM,
-    },
-]
