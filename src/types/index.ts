@@ -4,7 +4,7 @@ import type { Edge, Node, Position } from '@xyflow/react';
 
 export enum ShapeNodeType {
   rectangle = "rectangle",
-  circle = "circle",
+  ellipse = "ellipse",
 };
 
 export type ShapeNodeData = {

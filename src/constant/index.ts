@@ -23,7 +23,7 @@ export const tempNodes: ShapeNode[] = [
 export const sidebarTools: SidebarTools= {
     SELECT:"select",
     RECTANGLE: "rectangle",
-    CIRCLE:"circle",
+    ELLIPSE:"ellipse",
     ARROW:"arrow",
     PAN_ZOOM:"pan_zoom"
 }
@@ -38,8 +38,8 @@ export const sidebarOptionList:SidebarOption[]=[
         key: sidebarTools.RECTANGLE,
     },
     {
-        title: "Circle",
-        key: sidebarTools.CIRCLE,
+        title: "Ellipse",
+        key: sidebarTools.ELLIPSE,
     },
     {
         title: "Arrow",

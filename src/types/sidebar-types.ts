@@ -8,7 +8,7 @@ export type SidebarOption = {
 export type SidebarTools = {
     SELECT:Tool,
     RECTANGLE: Tool,
-    CIRCLE:Tool,
+    ELLIPSE:Tool,
     ARROW:Tool,
     PAN_ZOOM:Tool
 }
