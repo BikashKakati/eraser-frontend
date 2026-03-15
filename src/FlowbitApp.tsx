@@ -4,7 +4,7 @@ import MainCanvas from "./components/main-canvas/MainCanvas";
 import { ReactFlowProvider } from "@xyflow/react";
 
 
-const EraserApp: React.FC = () => {
+const FlowbitApp: React.FC = () => {
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-slate-50 to-indigo-50"
       style={{
@@ -25,4 +25,4 @@ const EraserApp: React.FC = () => {
   );
 };
 
-export default EraserApp;
+export default FlowbitApp;
