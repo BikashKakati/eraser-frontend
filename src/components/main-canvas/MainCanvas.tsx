@@ -26,7 +26,7 @@ import { EdgeTypes, ShapeNodeType, type AnchorNodeType, type AppNode, type Custo
 import ConnectionLine from "../connection-line/ConnectionLine";
 import ConnectableArrow from "../custom-edges/connectable-arrow/ConnectableArrow";
 import AnchorNode from "../custom-nodes/AnchorNode";
-import CircleNode from "../custom-nodes/circle/CircleNode";
+import EllipseNode from "../custom-nodes/ellipse/EllipseNode";
 import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
 import { getUniqueId } from "../utils";
 import type { DrawingShape } from "../../types/canvas-types";
@@ -34,7 +34,7 @@ import type { DrawingShape } from "../../types/canvas-types";
 
 const nodeTypes = {
   rectangle: RectangleNode,
-  circle: CircleNode,
+  ellipse: EllipseNode,
   anchor: AnchorNode,
 };
 
@@ -61,6 +61,7 @@ const MainCanvas: React.FC = () => {
   // console.log("drawingShapeId", drawingShapeId);
   // console.log("startPoint", startPoint);
 
+  // To change the position of an already existing arrow by selecting the end anchor nodes, to detect sanp position for shape nodes
   function handleNodeChange(nodeChanges: NodeChange<AppNode>[]) {
     if (activeTool === sidebarTools.ARROW) {
       return;
@@ -100,14 +101,14 @@ const MainCanvas: React.FC = () => {
 
             const PADDING = 20;
 
-            for (const rectNode of existingNodes) {
-              if (rectNode.type === ShapeNodeType.rectangle && rectNode.position) {
-                const localX = absPos.x - rectNode.position.x;
-                const localY = absPos.y - rectNode.position.y;
+            for (const shapeNode of existingNodes) {
+              if (shapeNode.type === ShapeNodeType.rectangle && shapeNode.position) {
+                const localX = absPos.x - shapeNode.position.x;
+                const localY = absPos.y - shapeNode.position.y;
 
                 const margin = 8;
-                const nodeWidth = rectNode.width ?? 320;
-                const nodeHeight = rectNode.height ?? 192;
+                const nodeWidth = shapeNode.width ?? 320;
+                const nodeHeight = shapeNode.height ?? 192;
 
                 const wrapperWidth = nodeWidth + margin * 2;
                 const wrapperHeight = nodeHeight + margin * 2;
@@ -148,7 +149,47 @@ const MainCanvas: React.FC = () => {
 
                     targetPosition = { x: localSnappedX, y: localSnappedY };
                     activeTargetHandlePosition = targetHandlePos;
-                    activeSnappedParentId = rectNode.id;
+                    activeSnappedParentId = shapeNode.id;
+                    break;
+                  }
+                }
+              } else if (shapeNode.type === ShapeNodeType.ellipse && shapeNode.position) {
+                const localX = absPos.x - shapeNode.position.x;
+                const localY = absPos.y - shapeNode.position.y;
+
+                const margin = 8;
+                const nodeWidth = shapeNode.width ?? 240;
+                const nodeHeight = shapeNode.height ?? 240;
+
+                const wrapperWidth = nodeWidth + margin * 2;
+                const wrapperHeight = nodeHeight + margin * 2;
+
+                const cx = wrapperWidth / 2;
+                const cy = wrapperHeight / 2;
+                const rx = nodeWidth / 2;
+                const ry = nodeHeight / 2;
+
+                const dx = localX - cx;
+                const dy = localY - cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (localX >= -PADDING && localX <= wrapperWidth + PADDING && localY >= -PADDING && localY <= wrapperHeight + PADDING) {
+                  const angle = Math.atan2(dy, dx);
+                  const r_ellipse = (rx * ry) / Math.sqrt(Math.pow(ry * Math.cos(angle), 2) + Math.pow(rx * Math.sin(angle), 2));
+
+                  if (Math.abs(dist - r_ellipse) <= PADDING) {
+                    const snapX = cx + r_ellipse * Math.cos(angle);
+                    const snapY = cy + r_ellipse * Math.sin(angle);
+
+                    const deg = angle * 180 / Math.PI;
+                    let targetHandlePos = Position.Right;
+                    if (deg > 45 && deg <= 135) targetHandlePos = Position.Bottom;
+                    else if (deg > 135 || deg <= -135) targetHandlePos = Position.Left;
+                    else if (deg > -135 && deg <= -45) targetHandlePos = Position.Top;
+
+                    targetPosition = { x: snapX, y: snapY };
+                    activeTargetHandlePosition = targetHandlePos;
+                    activeSnappedParentId = shapeNode.id;
                     break;
                   }
                 }
@@ -233,17 +274,19 @@ const MainCanvas: React.FC = () => {
   // Handler to start drawing a free-floating arrow or rectangle
   const handleMouseDown = useCallback(
     (event: ReactMouseEvent) => {
-      if ((activeTool !== sidebarTools.RECTANGLE && activeTool !== sidebarTools.ARROW) || event.button !== 0) return;
+      if ((activeTool !== sidebarTools.RECTANGLE && activeTool !== sidebarTools.ELLIPSE && activeTool !== sidebarTools.ARROW) || event.button !== 0) return;
 
       event.preventDefault();
 
       const flowPosition = screenToFlowPosition({ x: event.clientX, y: event.clientY });
 
-      if (activeTool === sidebarTools.RECTANGLE) {
-        const newShapeId = `rect-${getUniqueId()}`;
+      if (activeTool === sidebarTools.RECTANGLE || activeTool === sidebarTools.ELLIPSE) {
+        const shapeType = activeTool === sidebarTools.RECTANGLE ? ShapeNodeType.rectangle : ShapeNodeType.ellipse;
+        const prefix = activeTool === sidebarTools.RECTANGLE ? 'rect' : 'ellipse';
+        const newShapeId = `${prefix}-${getUniqueId()}`;
         const newNode: ShapeNode = {
           id: newShapeId,
-          type: ShapeNodeType.rectangle,
+          type: shapeType,
           position: flowPosition,
           data: { textContent: "" },
           width: 0,
@@ -262,6 +305,8 @@ const MainCanvas: React.FC = () => {
     }, [activeTool, screenToFlowPosition, setNodes, setDrawingArrowFrom]
   );
 
+
+  // Create arrows in arrow mode and calculate snap for shape nodes, because till now we didnot registered any anchor node just mouse is moving.
   const handleMouseMove = useCallback(
     (event: ReactMouseEvent) => {
       if (!anchorNodeDetails && !drawingShapeDetails) return;
@@ -327,6 +372,44 @@ const MainCanvas: React.FC = () => {
                   break;
                 }
               }
+            } else if (node.type === ShapeNodeType.ellipse && node.position) {
+              const margin = 8;
+              const nodeWidth = node.width ?? 240;
+              const nodeHeight = node.height ?? 240;
+              const wrapperWidth = nodeWidth + margin * 2;
+              const wrapperHeight = nodeHeight + margin * 2;
+
+              const localX = targetPosition.x - node.position.x;
+              const localY = targetPosition.y - node.position.y;
+
+              const cx = wrapperWidth / 2;
+              const cy = wrapperHeight / 2;
+              const rx = nodeWidth / 2;
+              const ry = nodeHeight / 2;
+              const dx = localX - cx;
+              const dy = localY - cy;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+
+              if (localX >= -PADDING && localX <= wrapperWidth + PADDING && localY >= -PADDING && localY <= wrapperHeight + PADDING) {
+                const angle = Math.atan2(dy, dx);
+                const r_ellipse = (rx * ry) / Math.sqrt(Math.pow(ry * Math.cos(angle), 2) + Math.pow(rx * Math.sin(angle), 2));
+
+                if (Math.abs(dist - r_ellipse) <= PADDING) {
+                  const snapX = cx + r_ellipse * Math.cos(angle);
+                  const snapY = cy + r_ellipse * Math.sin(angle);
+
+                  let targetHandlePosition: Position = Position.Right;
+                  const deg = angle * 180 / Math.PI;
+                  if (deg > 45 && deg <= 135) targetHandlePosition = Position.Bottom;
+                  else if (deg > 135 || deg <= -135) targetHandlePosition = Position.Left;
+                  else if (deg > -135 && deg <= -45) targetHandlePosition = Position.Top;
+
+                  targetPosition = { x: snapX, y: snapY };
+                  activeSnappedParentId = node.id;
+                  activeTargetHandlePosition = targetHandlePosition;
+                  break;
+                }
+              }
             }
           }
 
@@ -345,7 +428,7 @@ const MainCanvas: React.FC = () => {
             return node as AppNode;
           });
         });
-      } else if (drawingShapeDetails && activeTool === sidebarTools.RECTANGLE) {
+      } else if (drawingShapeDetails && (activeTool === sidebarTools.RECTANGLE || activeTool === sidebarTools.ELLIPSE)) {
         const { id, startPosition } = drawingShapeDetails;
 
         setNodes((existingNodes) =>
