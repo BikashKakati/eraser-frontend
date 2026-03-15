@@ -81,8 +81,8 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     }
   }, [isEditing, nodeHeight, id, setNodes]);
 
-  const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width + 8);
-  const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height + 8);
+  const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width);
+  const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;

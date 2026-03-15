@@ -69,7 +69,7 @@ const EditableText: React.FC<EditableTextProps> = ({
         return (
             <div
                 ref={editableRef}
-                className={`whitespace-pre-wrap break-words text-center px-2 select-none pointer-events-none w-full ${className}`}
+                className={`whitespace-pre-wrap break-words text-center px-2 select-none pointer-events-none w-fit max-w-full ${className}`}
                 style={{ ...style, height: 'fit-content' }}
             >
                 {initialText}
@@ -85,7 +85,7 @@ const EditableText: React.FC<EditableTextProps> = ({
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            className={`outline-none whitespace-pre-wrap break-words text-center px-2 w-full overflow-hidden ${className}`}
+            className={`outline-none whitespace-pre-wrap break-words text-center px-2 w-fit max-w-full overflow-hidden ${className}`}
             style={{
                 ...style,
                 minWidth: '10px',

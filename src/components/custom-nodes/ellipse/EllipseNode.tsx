@@ -61,7 +61,7 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
       const padding = 8;
       // An ellipse circumscribing a rectangle of given size has greater height constraints.
       // Roughly expanding height enough to fit text
-      const requiredHeight = (size.height + padding) * 1.42;
+      const requiredHeight = (size.height + padding) * 1.414;
 
       if (requiredHeight > nodeHeight) {
         setNodes((nds) =>
@@ -79,8 +79,8 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
     }
   }, [isEditing, nodeHeight, id, setNodes]);
 
-  const dynamicMinWidth = Math.max(nodeMinWidth, (contentSize.width + 8) * 1.42);
-  const dynamicMinHeight = Math.max(nodeMinHeight, (contentSize.height + 8) * 1.42);
+  const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width * 1.414);
+  const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height * 1.414);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;
@@ -165,7 +165,16 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
         />
       </svg>
 
-      <div style={{ position: 'absolute', left: margin, top: margin, width: nodeWidth, height: nodeHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        position: 'absolute',
+        left: margin + (nodeWidth - nodeWidth * 0.7071) / 2,
+        top: margin + (nodeHeight - nodeHeight * 0.7071) / 2,
+        width: nodeWidth * 0.7071,
+        height: nodeHeight * 0.7071,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
         <EditableText
           initialText={data.content?.text || data.textContent || ''}
           isEditing={isEditing}
