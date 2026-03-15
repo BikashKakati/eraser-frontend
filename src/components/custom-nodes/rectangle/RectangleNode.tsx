@@ -1,9 +1,8 @@
-// RectangleNode.tsx
 import { NodeResizer, Position, useReactFlow, type NodeProps } from '@xyflow/react';
-import React, { useRef, useState, useCallback } from 'react';
-import type { ShapeNode } from '../../../types';
+import React, { useCallback, useRef, useState } from 'react';
 import { useActiveToolStore } from '../../../store/zustand-store';
-import EditableText from '../../common/EditableText';
+import type { ShapeNode } from '../../../types';
+import EditableTextArea from '../../common/EditableText';
 
 
 const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
@@ -16,20 +15,20 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
   const nodeWidth = Math.max(0, wrapperWidth - margin * 2);
   const nodeHeight = Math.max(0, wrapperHeight - margin * 2);
 
-  const CORNER_RADIUS = 10; // rounded-[25px]
-  const STROKE_WIDTH = 1; // same as border-[2px]
+  const CORNER_RADIUS = 10;
+  const STROKE_WIDTH = 1;
 
   const { activeTool, setDrawingArrowFrom } = useActiveToolStore();
   const { setNodes } = useReactFlow();
 
   const [hoverPos, setHoverPos] = useState<{ x: number, y: number, handlePosition: Position } | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isTextAreaEnabled, setIsTextAreaEnabled] = useState(false);
   const [contentSize, setContentSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleDoubleClick = useCallback(() => {
     if (selected) {
-      setIsEditing(true);
+      setIsTextAreaEnabled(true);
     }
   }, [selected]);
 
@@ -51,17 +50,17 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
         return node;
       })
     );
-    setIsEditing(false);
+    setIsTextAreaEnabled(false);
   }, [id, setNodes]);
 
   const handleCancel = useCallback(() => {
-    setIsEditing(false);
+    setIsTextAreaEnabled(false);
   }, []);
 
   const handleContentSizeChange = useCallback((size: { width: number; height: number }) => {
     setContentSize(size);
 
-    if (isEditing) {
+    if (isTextAreaEnabled) {
       const padding = 8; // Even tighter padding
       const requiredHeight = size.height + padding;
 
@@ -79,13 +78,13 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
         );
       }
     }
-  }, [isEditing, nodeHeight, id, setNodes]);
+  }, [isTextAreaEnabled, nodeHeight, id, setNodes]);
 
   const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width);
   const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;
+    if (!containerRef.current || activeTool !== 'arrow' || isTextAreaEnabled) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -121,7 +120,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     } else {
       setHoverPos(null);
     }
-  }, [wrapperWidth, wrapperHeight, activeTool, isEditing]);
+  }, [wrapperWidth, wrapperHeight, activeTool, isTextAreaEnabled]);
 
   const handleMouseLeave = () => {
     setHoverPos(null);
@@ -173,9 +172,9 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
       </svg>
 
       <div style={{ position: 'absolute', left: margin, top: margin, width: nodeWidth, height: nodeHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <EditableText
+        <EditableTextArea
           initialText={data.content?.text || data.textContent || ''}
-          isEditing={isEditing}
+          isTextAreaEnabled={isTextAreaEnabled}
           onSave={handleSave}
           onCancel={handleCancel}
           onContentSizeChange={handleContentSizeChange}

@@ -50,16 +50,10 @@ const MainCanvas: React.FC = () => {
 
   const { screenToFlowPosition } = useReactFlow<AppNode, CustomEdge>();
 
-  // console.log(nodes);
-  // console.log(edges);
-
   const [anchorNodeDetails, setAnchorNodeDetails] = useState<{ sourceNodeId: string, targetNodeId: string } | null>(null);
 
   const [drawingShapeDetails, setDrawingShapeDetails] = useState<DrawingShape | null>(null);
 
-  // console.log("anchorNodeDetails", anchorNodeDetails);
-  // console.log("drawingShapeId", drawingShapeId);
-  // console.log("startPoint", startPoint);
 
   // To change the position of an already existing arrow by selecting the end anchor nodes, to detect sanp position for shape nodes
   function handleNodeChange(nodeChanges: NodeChange<AppNode>[]) {

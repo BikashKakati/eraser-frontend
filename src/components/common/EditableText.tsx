@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import type { EditableTextProps } from '../../types';
 
-const EditableText: React.FC<EditableTextProps> = ({
+const EditableTextArea: React.FC<EditableTextProps> = ({
     initialText,
     onSave,
     onCancel,
-    isEditing,
+    isTextAreaEnabled,
     className = '',
     style = {},
     onContentSizeChange,
@@ -33,10 +33,10 @@ const EditableText: React.FC<EditableTextProps> = ({
         reportSize();
 
         return () => observer.disconnect();
-    }, [reportSize, isEditing]);
+    }, [reportSize, isTextAreaEnabled]);
 
     useEffect(() => {
-        if (isEditing && editableRef.current) {
+        if (isTextAreaEnabled && editableRef.current) {
             editableRef.current.focus();
             // Move cursor to end
             const range = document.createRange();
@@ -46,10 +46,10 @@ const EditableText: React.FC<EditableTextProps> = ({
             sel?.removeAllRanges();
             sel?.addRange(range);
         }
-    }, [isEditing]);
+    }, [isTextAreaEnabled]);
 
     const handleBlur = () => {
-        if (isEditing) {
+        if (isTextAreaEnabled) {
             onSave(editableRef.current?.innerText || '');
         }
     };
@@ -65,7 +65,7 @@ const EditableText: React.FC<EditableTextProps> = ({
         e.stopPropagation();
     };
 
-    if (!isEditing) {
+    if (!isTextAreaEnabled) {
         return (
             <div
                 ref={editableRef}
@@ -98,4 +98,4 @@ const EditableText: React.FC<EditableTextProps> = ({
     );
 };
 
-export default EditableText;
+export default EditableTextArea;

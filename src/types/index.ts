@@ -46,7 +46,7 @@ export interface EditableTextProps {
     initialText: string;
     onSave: (text: string) => void;
     onCancel?: () => void;
-    isEditing: boolean;
+    isTextAreaEnabled: boolean;
     className?: string;
     style?: React.CSSProperties;
     onContentSizeChange?: (size: { width: number; height: number }) => void;

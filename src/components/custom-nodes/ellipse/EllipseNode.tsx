@@ -1,8 +1,8 @@
 import { NodeResizer, Position, useReactFlow, type NodeProps } from '@xyflow/react';
-import React, { useRef, useState, useCallback } from 'react';
-import type { ShapeNode } from '../../../types';
+import React, { useCallback, useRef, useState } from 'react';
 import { useActiveToolStore } from '../../../store/zustand-store';
-import EditableText from '../../common/EditableText';
+import type { ShapeNode } from '../../../types';
+import EditableTextArea from '../../common/EditableText';
 
 const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
   const nodeMinWidth = 100;
@@ -17,15 +17,14 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
 
   const { activeTool, setDrawingArrowFrom } = useActiveToolStore();
   const { setNodes } = useReactFlow();
-
   const [hoverPos, setHoverPos] = useState<{ x: number, y: number, handlePosition: Position } | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isTextAreaEnabled, setIsTextAreaEnabled] = useState(false);
   const [contentSize, setContentSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleDoubleClick = useCallback(() => {
     if (selected) {
-      setIsEditing(true);
+      setIsTextAreaEnabled(true);
     }
   }, [selected]);
 
@@ -47,17 +46,17 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
         return node;
       })
     );
-    setIsEditing(false);
+    setIsTextAreaEnabled(false);
   }, [id, setNodes]);
 
   const handleCancel = useCallback(() => {
-    setIsEditing(false);
+    setIsTextAreaEnabled(false);
   }, []);
 
   const handleContentSizeChange = useCallback((size: { width: number; height: number }) => {
     setContentSize(size);
 
-    if (isEditing) {
+    if (isTextAreaEnabled) {
       const padding = 8;
       // An ellipse circumscribing a rectangle of given size has greater height constraints.
       // Roughly expanding height enough to fit text
@@ -77,13 +76,13 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
         );
       }
     }
-  }, [isEditing, nodeHeight, id, setNodes]);
+  }, [isTextAreaEnabled, nodeHeight, id, setNodes]);
 
   const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width * 1.414);
   const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height * 1.414);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current || activeTool !== 'arrow' || isEditing) return;
+    if (!containerRef.current || activeTool !== 'arrow' || isTextAreaEnabled) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -117,7 +116,7 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
     } else {
       setHoverPos(null);
     }
-  }, [wrapperWidth, wrapperHeight, nodeWidth, nodeHeight, activeTool, isEditing]);
+  }, [wrapperWidth, wrapperHeight, nodeWidth, nodeHeight, activeTool, isTextAreaEnabled]);
 
   const handleMouseLeave = () => {
     setHoverPos(null);
@@ -175,9 +174,9 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <EditableText
+        <EditableTextArea
           initialText={data.content?.text || data.textContent || ''}
-          isEditing={isEditing}
+          isTextAreaEnabled={isTextAreaEnabled}
           onSave={handleSave}
           onCancel={handleCancel}
           onContentSizeChange={handleContentSizeChange}
