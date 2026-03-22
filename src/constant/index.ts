@@ -1,24 +1,7 @@
 import { type ShapeNode } from "../types";
-import type { SidebarOption, SidebarTools } from "../types/sidebar-types";
+import type { SidebarTools } from "../types/sidebar-types";
 
-export const tempNodes: ShapeNode[] = [
-    // {
-    //     id: "temp1a",
-    //     position: {x: 300, y: 200},
-    //     type: ShapeNodeType.rectangle,
-    //     data:{textContent:"rec-1"},
-    //     width: 300,
-    //     height: 250,
-    // },
-    // {
-    //     id: "temp2a",
-    //     position: {x: 800, y: 200},
-    //     type: ShapeNodeType.rectangle,
-    //     data:{textContent:"rec-2"},
-    //     width: 300,
-    //     height: 250,
-    // },
-]
+export const tempNodes: ShapeNode[] = []
 
 export const sidebarTools: SidebarTools= {
     SELECT:"select",
