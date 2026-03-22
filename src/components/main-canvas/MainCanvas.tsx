@@ -4,8 +4,7 @@ import {
 } from "@xyflow/react";
 
 import { sidebarTools } from "../../constant";
-import { useActiveToolStore } from "../../store/zustand-store";
-import { useCanvasStore } from "../../store/canvas-store";
+import { useEditorStore } from "../../store/editor-store";
 
 import ConnectionLine from "../connection-line/ConnectionLine";
 import ConnectableArrow from "../custom-edges/connectable-arrow/ConnectableArrow";
@@ -28,8 +27,7 @@ const edgeTypes = {
 };
 
 const MainCanvas: React.FC = () => {
-  const { activeTool } = useActiveToolStore();
-  const { nodes, edges, onEdgesChange, onConnect } = useCanvasStore();
+  const { activeTool, nodes, edges, onEdgesChange, onConnect } = useEditorStore();
 
   const { handleMouseDown, handleMouseMove, handleMouseUp } = useCanvasInteractions();
   const { handleNodeChange } = useNodeChanges();

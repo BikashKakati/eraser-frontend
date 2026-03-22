@@ -1,5 +1,5 @@
 import type React from "react";
-import { useActiveToolStore } from "../../store/zustand-store";
+import { useEditorStore } from "../../store/editor-store";
 import { sidebarTools } from "../../constant";
 import {
   MousePointer2,
@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 const Sidebar: React.FC = () => {
-  const { activeTool, setActiveTool } = useActiveToolStore();
+  const { activeTool, setActiveTool } = useEditorStore();
 
   const tools = [
     { key: sidebarTools.SELECT, icon: MousePointer2, label: 'Select' },

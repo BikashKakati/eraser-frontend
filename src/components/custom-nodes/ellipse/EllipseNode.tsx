@@ -1,6 +1,6 @@
-import { NodeResizer, Position, useReactFlow, type NodeProps } from '@xyflow/react';
+import { NodeResizer, Position, type NodeProps } from '@xyflow/react';
 import React, { useCallback, useRef, useState } from 'react';
-import { useActiveToolStore } from '../../../store/zustand-store';
+import { useEditorStore } from '../../../store/editor-store';
 import type { ShapeNode } from '../../../types';
 import EditableTextArea from '../../common/EditableText';
 
@@ -15,8 +15,8 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
   const nodeHeight = Math.max(0, wrapperHeight - margin * 2);
 
 
-  const { activeTool, setDrawingArrowFrom } = useActiveToolStore();
-  const { setNodes } = useReactFlow();
+  const { activeTool, setDrawingArrowFrom, updateShapeNode } = useEditorStore();
+
   const [hoverPos, setHoverPos] = useState<{ x: number, y: number, handlePosition: Position } | null>(null);
   const [isTextAreaEnabled, setIsTextAreaEnabled] = useState(false);
   const [contentSize, setContentSize] = useState({ width: 0, height: 0 });
@@ -29,25 +29,9 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
   }, [selected]);
 
   const handleSave = useCallback((newText: string) => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === id) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              content: {
-                ...(node.data?.content || {}),
-                text: newText,
-              },
-            },
-          };
-        }
-        return node;
-      })
-    );
+    updateShapeNode(id, { text: newText });
     setIsTextAreaEnabled(false);
-  }, [id, setNodes]);
+  }, [id, updateShapeNode]);
 
   const handleCancel = useCallback(() => {
     setIsTextAreaEnabled(false);
@@ -63,20 +47,10 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
       const requiredHeight = (size.height + padding) * 1.414;
 
       if (requiredHeight > nodeHeight) {
-        setNodes((nds) =>
-          nds.map((node) => {
-            if (node.id === id) {
-              return {
-                ...node,
-                height: requiredHeight + margin * 2,
-              };
-            }
-            return node;
-          })
-        );
+        updateShapeNode(id, { height: requiredHeight + margin * 2 });
       }
     }
-  }, [isTextAreaEnabled, nodeHeight, id, setNodes]);
+  }, [isTextAreaEnabled, nodeHeight, id, updateShapeNode]);
 
   const dynamicMinWidth = Math.max(nodeMinWidth, contentSize.width * 1.414);
   const dynamicMinHeight = Math.max(nodeMinHeight, contentSize.height * 1.414);

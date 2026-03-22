@@ -1,37 +1,33 @@
 import { useEffect, useRef, useState } from "react";
-import { useCanvasStore } from "../store/canvas-store";
+import { useEditorStore } from "../store/editor-store";
 import { localStorageDriver, backendApiDriver } from "../utils/storage";
 import type { CanvasData } from "../utils/storage";
 import type { AppNode, CustomEdge } from "../types";
 
-const AUTO_SAVE_DEBOUNCE_MS = 1000;
+const AUTO_SAVE_DEBOUNCE_MS = 2000; // save after every 2sec if somthing change
 
 export function useCanvasPersistence(canvasId: string = "default-canvas") {
-  const nodes = useCanvasStore((s) => s.nodes);
-  const edges = useCanvasStore((s) => s.edges);
-  const setNodes = useCanvasStore((s) => s.setNodes);
-  const setEdges = useCanvasStore((s) => s.setEdges);
+  const nodes = useEditorStore((s) => s.nodes);
+  const edges = useEditorStore((s) => s.edges);
+  const initializeCanvasData = useEditorStore((s) => s.initializeCanvasData);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const isHydrating = useRef(true);
 
-  // 1. Initial State Loading
   useEffect(() => {
     let mounted = true;
 
     const loadData = async () => {
       try {
-        // Attempt to restore canvas state from local storage first for instant feedback
+        
         const data = await localStorageDriver.getCanvas(canvasId);
         
         if (mounted && data) {
-          if (data.nodes && data.nodes.length > 0) setNodes(data.nodes);
-          if (data.edges && data.edges.length > 0) setEdges(data.edges);
+          initializeCanvasData(data.nodes || [], data.edges || []);
         }
 
-        // Feature placeholder: Restore from backend if desired, merging or overriding local state
+        // in future
         // const backendData = await backendApiDriver.getCanvas(canvasId);
-        // if (mounted && backendData) { ... }
 
       } catch (err) {
         console.error("Failed to restore canvas state:", err);
@@ -48,14 +44,14 @@ export function useCanvasPersistence(canvasId: string = "default-canvas") {
     return () => {
       mounted = false;
     };
-  }, [canvasId, setNodes, setEdges]);
+  }, [canvasId, initializeCanvasData]);
 
-  // 2. Debounced Save on State Changes
+
   useEffect(() => {
-    // Avoid saving empty/default state before initial hydration finishes
+    // Avoid saving empty/default state before initial elements restoration from localstorage/db finishes
     if (isHydrating.current) return;
 
-    // Clean transient UI states (like drag/selection/measurements) before serializing
+    // Clean transient UI states (like dragging/selection/measurements) before saving
     const cleanNodes: AppNode[] = nodes.map((node) => {
       const { selected, dragging, measured, positionAbsolute, ...restAppNode } = node as any;
       return restAppNode as AppNode;
@@ -68,8 +64,6 @@ export function useCanvasPersistence(canvasId: string = "default-canvas") {
 
     const timeoutId = setTimeout(() => {
       const stateToSave: CanvasData = { nodes: cleanNodes, edges: cleanEdges };
-
-      // Architecture rule: Dual-layer persistence abstraction.
       
       // Layer A: Fast offline-capable local persistence
       localStorageDriver.saveCanvas(canvasId, stateToSave).catch(console.error);

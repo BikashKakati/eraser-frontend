@@ -2,11 +2,11 @@
 import { Position, Handle, useEdges, type NodeProps } from '@xyflow/react';
 import React from 'react';
 import type { AnchorNodeType } from '../../types';
-import { useActiveToolStore } from '../../store/zustand-store';
+import { useEditorStore } from '../../store/editor-store';
 import { sidebarTools } from '../../constant';
 
 const AnchorNode: React.FC<NodeProps<AnchorNodeType>> = ({ id, data, selected }) => {
-    const { activeTool } = useActiveToolStore();
+    const { activeTool } = useEditorStore();
     const { identityType } = data;
     const edges = useEdges();
 
