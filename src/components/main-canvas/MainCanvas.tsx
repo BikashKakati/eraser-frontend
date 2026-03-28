@@ -12,6 +12,7 @@ import AnchorNode from "../custom-nodes/AnchorNode";
 import EllipseNode from "../custom-nodes/ellipse/EllipseNode";
 import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
 import ActionBar from "../action-bar/ActionBar";
+import ZoomControls from "../zoom-controls/ZoomControls";
 
 import { useCanvasInteractions } from "../../hooks/useCanvasInteractions";
 import { useNodeChanges } from "../../hooks/useNodeChanges";
@@ -56,7 +57,11 @@ const MainCanvas: React.FC = () => {
 
         panOnDrag={activeTool === sidebarTools.SELECT || activeTool === sidebarTools.PAN_ZOOM}
         nodesDraggable={activeTool === sidebarTools.SELECT}
-      />
+        minZoom={0.1}
+        maxZoom={4.0}
+      >
+        <ZoomControls />
+      </ReactFlow>
       <ActionBar />
     </>
   );
