@@ -9,6 +9,8 @@ import {
   onEdgesChangeAction,
   onConnectAction,
   updateAnchorPositionsAction,
+  createGroupAction,
+  ungroupAction,
 } from '../actions/canvas-actions';
 
 export const createCanvasSlice: StateCreator<EditorStoreType, [], [], CanvasSlice> = (set, _get) => ({
@@ -24,4 +26,6 @@ export const createCanvasSlice: StateCreator<EditorStoreType, [], [], CanvasSlic
   onEdgesChange: (changes) => set((state: EditorStoreType) => onEdgesChangeAction(state, changes)),
   onConnect: (connection) => set((state: EditorStoreType) => onConnectAction(state, connection)),
   updateAnchorPositions: (changes, anchorChanges) => set((state: EditorStoreType) => updateAnchorPositionsAction(state, changes, anchorChanges) || {}),
+  createGroup: () => set((state: EditorStoreType) => createGroupAction(state)),
+  ungroup: () => set((state: EditorStoreType) => ungroupAction(state)),
 });

@@ -1,7 +1,8 @@
-import type { AppNode, CustomEdge } from '../../types';
+import type { AppNode, CustomEdge, CustomGroupNode } from '../../types';
 import { applyNodeChanges, applyEdgeChanges, addEdge, MarkerType, type NodeChange, type EdgeChange, type Connection } from '@xyflow/react';
 import type { EditorStoreType } from '../../types/store-types';
 import { calculateSnapTarget } from '../../utils/snapping';
+import { getUniqueId } from '../../utils';
 
 export const initializeCanvasDataAction = (
   _state: EditorStoreType,
@@ -16,8 +17,25 @@ export const updateShapeNodeAction = (
   id: string,
   updates: { text?: string; width?: number; height?: number; bgColor?: string; borderColor?: string; }
 ): Partial<EditorStoreType> => {
+  let targetIds = [id];
+  const targetNode = state.nodes.find(n => n.id === id);
+  
+  if (targetNode?.type === 'customGroup') {
+      const getDescendants = (parentId: string): string[] => {
+          let desc: string[] = [];
+          state.nodes.forEach(n => {
+              if (n.parentId === parentId) {
+                  desc.push(n.id);
+                  desc = desc.concat(getDescendants(n.id));
+              }
+          });
+          return desc;
+      };
+      targetIds = getDescendants(id);
+  }
+
   const newNodes = state.nodes.map((node) => {
-    if (node.id === id) {
+    if (targetIds.includes(node.id)) {
       if (node.type === 'rectangle' || node.type === 'ellipse') {
         let newData = { ...node.data };
         if (updates.text !== undefined) {
@@ -72,13 +90,32 @@ export const deleteElementsAction = (
   type: 'node' | 'edge'
 ): Partial<EditorStoreType> => {
   if (type === 'node') {
-    const nextNodes = state.nodes.filter(n => !ids.includes(n.id));
-    const selectedNodeIds = state.selectedNodeIds.filter(id => !ids.includes(id));
-    // Also remove connected edges automatically? React Flow might handle this via `applyNodeChanges(remove)`, 
-    // but a direct UI delete should either trigger `applyNodeChanges([{ type: 'remove', id }])` or we filter.
-    // Let's rely on filtering just the targeted type, connected edges usually get pruned by React Flow 
-    // when `onNodesDelete` is fired if configured, or we can handle it.
-    return { nodes: nextNodes, selectedNodeIds };
+    let allIdsToDelete = [...ids];
+    
+    // Auto-delete any children of nodes being deleted
+    const getDescendants = (parentId: string): string[] => {
+      let desc: string[] = [];
+      state.nodes.forEach(n => {
+        if (n.parentId === parentId) {
+          desc.push(n.id);
+          desc = desc.concat(getDescendants(n.id));
+        }
+      });
+      return desc;
+    };
+    
+    ids.forEach(id => {
+      allIdsToDelete = allIdsToDelete.concat(getDescendants(id));
+    });
+
+    const nextNodes = state.nodes.filter(n => !allIdsToDelete.includes(n.id));
+    const selectedNodeIds = state.selectedNodeIds.filter(id => !allIdsToDelete.includes(id));
+    
+    // Also prune any edges attached to these deleted nodes to keep state clean
+    const nextEdges = state.edges.filter(e => !allIdsToDelete.includes(e.source) && !allIdsToDelete.includes(e.target));
+    const selectedEdgeIds = state.selectedEdgeIds.filter(id => nextEdges.some(e => e.id === id));
+
+    return { nodes: nextNodes, edges: nextEdges, selectedNodeIds, selectedEdgeIds };
   } else {
     const nextEdges = state.edges.filter(e => !ids.includes(e.id));
     const selectedEdgeIds = state.selectedEdgeIds.filter(id => !ids.includes(id));
@@ -90,7 +127,72 @@ export const onNodesChangeAction = (
   state: EditorStoreType,
   changes: NodeChange<AppNode>[]
 ): Partial<EditorStoreType> => {
-  const nextNodes = applyNodeChanges(changes, state.nodes) as AppNode[];
+  const getTopmostParentId = (nodeId: string): string => {
+      let currentId = nodeId;
+      while (true) {
+          const node = state.nodes.find(n => n.id === currentId);
+          if (node && node.parentId) currentId = node.parentId;
+          else break;
+      }
+      return currentId;
+  };
+
+  const resolvedChanges: NodeChange<AppNode>[] = [];
+  const processedParents = new Set<string>();
+
+  changes.forEach(change => {
+      if (change.type === 'position' && change.position) {
+          const node = state.nodes.find(n => n.id === change.id);
+          if (node && node.parentId) {
+              const topId = getTopmostParentId(node.id);
+              if (topId !== node.id) {
+                  if (!processedParents.has(topId)) {
+                      const topNode = state.nodes.find(n => n.id === topId);
+                      if (topNode) {
+                          const dx = change.position.x - node.position.x;
+                          const dy = change.position.y - node.position.y;
+                          
+                          resolvedChanges.push({
+                              id: topId,
+                              type: 'position',
+                              position: {
+                                  x: topNode.position.x + dx,
+                                  y: topNode.position.y + dy
+                              },
+                              dragging: change.dragging
+                          });
+                          processedParents.add(topId);
+                      }
+                  }
+                  return; // Drop child position change!
+              }
+          }
+      }
+      resolvedChanges.push(change);
+  });
+
+  let nextNodes = applyNodeChanges(resolvedChanges, state.nodes) as AppNode[];
+  let selectionAltered = false;
+
+  const nodesToSelect = new Set<string>();
+
+  nextNodes.forEach(node => {
+      if (node.selected) {
+         const topId = getTopmostParentId(node.id);
+         if (topId !== node.id) {
+             selectionAltered = true;
+         }
+         nodesToSelect.add(topId);
+      }
+  });
+
+  if (selectionAltered) {
+      nextNodes = nextNodes.map(node => ({
+          ...node,
+          selected: nodesToSelect.has(node.id)
+      }));
+  }
+
   const selectedNodeIds = nextNodes.filter(n => n.selected).map(n => n.id);
   return { nodes: nextNodes, selectedNodeIds };
 };
@@ -156,3 +258,102 @@ export const updateAnchorPositionsAction = (
   return { nodes: newNodes };
 };
 
+export const createGroupAction = (state: EditorStoreType): Partial<EditorStoreType> => {
+  if (state.selectedNodeIds.length < 2) return {};
+
+  const selectedNodes = state.nodes.filter(n => state.selectedNodeIds.includes(n.id));
+  
+  const getAbsPos = (node: AppNode): { x: number, y: number } => {
+     let x = node.position.x;
+     let y = node.position.y;
+     let current = node;
+     while(current.parentId) {
+         const parent = state.nodes.find(n => n.id === current.parentId);
+         if(parent) {
+            x += parent.position.x;
+            y += parent.position.y;
+            current = parent;
+         } else break;
+     }
+     return { x, y };
+  };
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const padding = 20;
+
+  selectedNodes.forEach(n => {
+     const abs = getAbsPos(n);
+     const w = n.measured?.width ?? (n.width ?? 0);
+     const h = n.measured?.height ?? (n.height ?? 0);
+     if (abs.x < minX) minX = abs.x;
+     if (abs.y < minY) minY = abs.y;
+     if (abs.x + w > maxX) maxX = abs.x + w;
+     if (abs.y + h > maxY) maxY = abs.y + h;
+  });
+
+  const groupWidth = maxX - minX + (padding * 2);
+  const groupHeight = maxY - minY + (padding * 2);
+  const groupX = minX - padding;
+  const groupY = minY - padding;
+
+  const groupId = `group-${getUniqueId()}`;
+  const groupNode: CustomGroupNode = {
+     id: groupId,
+     type: 'customGroup',
+     position: { x: groupX, y: groupY },
+     data: {},
+     width: groupWidth,
+     height: groupHeight,
+     style: { width: groupWidth, height: groupHeight },
+     selected: true
+  };
+
+  const newNodes = state.nodes.map(node => {
+     if (state.selectedNodeIds.includes(node.id)) {
+        const abs = getAbsPos(node);
+        return {
+           ...node,
+           parentId: groupId,
+           position: { x: abs.x - groupX, y: abs.y - groupY },
+           selected: false,
+        };
+     }
+     return node;
+  });
+
+  // Extremely crucial for React Flow: The parent node MUST appear before its children in the nodes map
+  // Placing groupNode at the very beginning guarantees it renders behind and evaluates its bounds before its descendants.
+  return { nodes: [groupNode, ...newNodes], selectedNodeIds: [groupId] };
+};
+
+export const ungroupAction = (state: EditorStoreType): Partial<EditorStoreType> => {
+   if (state.selectedNodeIds.length !== 1) return {};
+   const groupId = state.selectedNodeIds[0];
+   const groupNode = state.nodes.find(n => n.id === groupId);
+   if (!groupNode || groupNode.type !== 'customGroup') return {};
+
+   const newNodes = state.nodes.filter(n => n.id !== groupId).map(node => {
+      if (node.parentId === groupId) {
+         const newNode = {
+            ...node,
+            position: {
+               x: node.position.x + groupNode.position.x,
+               y: node.position.y + groupNode.position.y
+            },
+            selected: false
+         };
+         if (groupNode.parentId) {
+             newNode.parentId = groupNode.parentId;
+         } else {
+             delete newNode.parentId;
+         }
+         return newNode;
+      }
+      return node;
+   });
+
+   return { nodes: newNodes, selectedNodeIds: [] };
+};

@@ -15,6 +15,8 @@ export interface CanvasSlice {
   onEdgesChange: (changes: EdgeChange<CustomEdge>[]) => void;
   onConnect: (connection: Connection) => void;
   updateAnchorPositions: (changes: NodeChange<AppNode>[], anchorPositionChanges: NodeChange<AppNode>[]) => void;
+  createGroup: () => void;
+  ungroup: () => void;
 }
 
 export interface InteractionSlice {
