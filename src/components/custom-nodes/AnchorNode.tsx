@@ -28,7 +28,7 @@ const AnchorNode: React.FC<NodeProps<AnchorNodeType>> = ({ id, data, selected })
             />
 
             <div
-                className={`w-[14px] h-[14px] bg-indigo-500 border-2 border-white rounded-full transition-all duration-200 ${showHandle ? 'opacity-100 pointer-events-auto cursor-crosshair hover:scale-125' : 'opacity-0 pointer-events-none'}`}
+                className={`w-[12px] h-[12px] bg-indigo-500 border-2 border-white rounded-full transition-all duration-200 ${showHandle ? 'opacity-100 pointer-events-auto cursor-crosshair hover:scale-110' : 'opacity-0 pointer-events-none'}`}
             />
         </div>
     );

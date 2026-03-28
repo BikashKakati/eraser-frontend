@@ -3,6 +3,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { useEditorStore } from '../../../store/editor-store';
 import type { ShapeNode } from '../../../types';
 import EditableTextArea from '../../common/EditableText';
+import { adjustColorBrightness, getContrastTextColor } from '../../../utils/colors';
 
 const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
   const nodeMinWidth = 100;
@@ -21,6 +22,13 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
   const [isTextAreaEnabled, setIsTextAreaEnabled] = useState(false);
   const [contentSize, setContentSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const baseBg = data.bgColor || 'transparent';
+  const baseBorder = data.borderColor || '#64748b';
+
+  const displayBg = selected ? adjustColorBrightness(baseBg, 0.98) : baseBg;
+  const displayBorder = selected ? adjustColorBrightness(baseBorder, 0.75) : baseBorder;
+  const textColor = getContrastTextColor(displayBg);
 
   const handleDoubleClick = useCallback(() => {
     if (selected) {
@@ -131,9 +139,13 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
           cy={(nodeHeight + spaceBetweenSvgNEllipse) / 2}
           rx={nodeWidth / 2}
           ry={nodeHeight / 2}
+          style={{
+            fill: displayBg,
+            stroke: displayBorder,
+            strokeWidth: selected ? 1.2 : 1,
+          }}
           className={`
-            fill-transparent stroke-slate-500 stroke-[1]
-            ${selected ? '!stroke-slate-600 stroke-[1] shadow-md' : 'shadow-sm hover:shadow-md'}
+            ${selected ? 'shadow-md' : 'shadow-sm hover:shadow-md'}
           `}
         />
       </svg>
@@ -149,12 +161,13 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
         justifyContent: 'center'
       }}>
         <EditableTextArea
-          initialText={data.content?.text || data.textContent || ''}
+          initialText={data.content?.text || ''}
           isTextAreaEnabled={isTextAreaEnabled}
           onSave={handleSave}
           onCancel={handleCancel}
           onContentSizeChange={handleContentSizeChange}
-          className="text-sm text-slate-700 leading-relaxed font-medium"
+          className="text-sm leading-relaxed font-medium transition-colors duration-200"
+          style={{ color: textColor }}
         />
       </div>
 

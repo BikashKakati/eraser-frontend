@@ -13,7 +13,6 @@ export type ShapeNodeData = {
     icon?: string;
     image?: string;
   };
-  textContent?: string; // Kept temporarily for backwards compatibility if needed, but we will migrate
   bgColor?:string;
   borderColor?:string;
 }

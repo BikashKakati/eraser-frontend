@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { useEditorStore } from '../../../store/editor-store';
 import type { ShapeNode } from '../../../types';
 import EditableTextArea from '../../common/EditableText';
-
+import { adjustColorBrightness, getContrastTextColor } from '../../../utils/colors';
 
 const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, width, height }) => {
   const nodeMinWidth = 100;
@@ -25,6 +25,13 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
   const [contentSize, setContentSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const baseBg = data.bgColor || 'transparent';
+  const baseBorder = data.borderColor || '#64748b';
+
+  const displayBg = selected ? adjustColorBrightness(baseBg, 0.98) : baseBg;
+  const displayBorder = selected ? adjustColorBrightness(baseBorder, 0.75) : baseBorder;
+  const textColor = getContrastTextColor(displayBg);
+
   const handleDoubleClick = useCallback(() => {
     if (selected) {
       setIsTextAreaEnabled(true);
@@ -44,7 +51,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
     setContentSize(size);
 
     if (isTextAreaEnabled) {
-      const padding = 8; // Even tighter padding
+      const padding = 8;
       const requiredHeight = size.height + padding;
 
       if (requiredHeight > nodeHeight) {
@@ -77,7 +84,7 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
 
     const minDist = Math.min(distLeft, distRight, distTop, distBottom);
 
-    const SNAP_THRESHOLD = 20; // pixels to snap
+    const SNAP_THRESHOLD = 20;
 
     if (minDist < SNAP_THRESHOLD) {
       // Find which border it's closest to and lock to that border
@@ -137,21 +144,36 @@ const RectangleNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id
           height={nodeHeight}
           rx={CORNER_RADIUS}
           ry={CORNER_RADIUS}
+          style={{
+            fill: displayBg,
+            stroke: displayBorder,
+            strokeWidth: selected ? 1.2 : 1,
+          }}
           className={`
-            fill-transparent stroke-slate-500 stroke-[1]
-            ${selected ? '!stroke-slate-600 stroke-[1] shadow-md' : 'shadow-sm hover:shadow-md'}
+            ${selected ? 'shadow-md' : 'shadow-sm hover:shadow-md'}
           `}
         />
       </svg>
 
-      <div style={{ position: 'absolute', left: margin, top: margin, width: nodeWidth, height: nodeHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* Editable Text Area */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
         <EditableTextArea
-          initialText={data.content?.text || data.textContent || ''}
+          initialText={data.content?.text || ''}
           isTextAreaEnabled={isTextAreaEnabled}
           onSave={handleSave}
           onCancel={handleCancel}
           onContentSizeChange={handleContentSizeChange}
-          className="text-sm text-slate-700 leading-relaxed font-medium"
+          className="text-sm leading-relaxed font-medium transition-colors duration-200"
+          style={{ color: textColor }}
         />
       </div>
 

@@ -35,7 +35,8 @@ export const initializeArrowFromExternalAction = (state: EditorStoreType): Parti
     source: sourceNodeId,
     target: targetNodeId,
     type: EdgeTypes.connectableArrow,
-    markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: '#000' },
+    data: { arrowColor: '#64748b' },
+    markerEnd: { type: MarkerType.Arrow, width: 20, height: 20, color: '#64748b' },
   };
 
   return {
@@ -56,7 +57,7 @@ export const startFreehandDrawAction = (
     
     const newNode: ShapeNode = {
       id: newShapeId, type: shapeType, position: flowPosition,
-      data: { content: { text: "" } }, width: 0, height: 0, selected: true,
+      data: { content: { text: "" }, bgColor: 'transparent', borderColor: '#64748b' }, width: 0, height: 0, selected: true,
     };
 
     return {
