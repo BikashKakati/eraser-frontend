@@ -11,6 +11,7 @@ import ConnectableArrow from "../custom-edges/connectable-arrow/ConnectableArrow
 import AnchorNode from "../custom-nodes/AnchorNode";
 import EllipseNode from "../custom-nodes/ellipse/EllipseNode";
 import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
+import ActionBar from "../action-bar/ActionBar";
 
 import { useCanvasInteractions } from "../../hooks/useCanvasInteractions";
 import { useNodeChanges } from "../../hooks/useNodeChanges";
@@ -35,29 +36,29 @@ const MainCanvas: React.FC = () => {
   useCanvasPersistence("default-canvas");
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      onConnect={onConnect}
-      onNodesChange={handleNodeChange}
-      onEdgesChange={onEdgesChange}
-      connectionMode={ConnectionMode.Loose}
-      connectionLineComponent={ConnectionLine}
+    <>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        onConnect={onConnect}
+        onNodesChange={handleNodeChange}
+        onEdgesChange={onEdgesChange}
+        connectionMode={ConnectionMode.Loose}
+        connectionLineComponent={ConnectionLine}
 
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
 
-      className={`tool-${activeTool}`}
+        className={`tool-${activeTool}`}
 
-      // Prevents the canvas from panning when a drawing tool is active
-      panOnDrag={activeTool === sidebarTools.SELECT || activeTool === sidebarTools.PAN_ZOOM}
-
-      // Prevents nodes from being dragged when a drawing tool is active
-      nodesDraggable={activeTool === sidebarTools.SELECT}
-    />
+        panOnDrag={activeTool === sidebarTools.SELECT || activeTool === sidebarTools.PAN_ZOOM}
+        nodesDraggable={activeTool === sidebarTools.SELECT}
+      />
+      <ActionBar />
+    </>
   );
 };
 

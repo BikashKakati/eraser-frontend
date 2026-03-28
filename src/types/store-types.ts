@@ -5,8 +5,12 @@ import type { NodeChange, EdgeChange, Connection, Position } from '@xyflow/react
 export interface CanvasSlice {
   nodes: AppNode[];
   edges: CustomEdge[];
+  selectedNodeIds: string[];
+  selectedEdgeIds: string[];
   initializeCanvasData: (nodes: AppNode[], edges: CustomEdge[]) => void;
-  updateShapeNode: (id: string, updates: { text?: string; width?: number; height?: number }) => void;
+  updateShapeNode: (id: string, updates: { text?: string; width?: number; height?: number; bgColor?: string; borderColor?: string; }) => void;
+  updateEdgeStyle: (id: string, updates: { arrowColor?: string; }) => void;
+  deleteElements: (ids: string[], type: 'node' | 'edge') => void;
   onNodesChange: (changes: NodeChange<AppNode>[]) => void;
   onEdgesChange: (changes: EdgeChange<CustomEdge>[]) => void;
   onConnect: (connection: Connection) => void;

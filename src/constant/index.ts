@@ -10,3 +10,5 @@ export const sidebarTools: SidebarTools= {
     ARROW:"arrow",
     PAN_ZOOM:"pan_zoom"
 }
+
+export const COLORS = ['transparent', '#ffffff', '#f1f5f9', '#fca5a5', '#fcd34d', '#86efac', '#93c5fd', '#c4b5fd', '#cbd5e1', '#334155'];
