@@ -35,9 +35,15 @@ export type AnchorData = {
 
 export type ShapeNode = Node<ShapeNodeData, ShapeNodeType>;
 export type AnchorNodeType = Node<AnchorData, "anchor">;
+
+export type GroupNodeData = Record<string, never>;
+export type CustomGroupNode = Node<GroupNodeData, 'customGroup'>;
+
 export type AppNode =
 |AnchorNodeType
 |ShapeNode
+|CustomGroupNode;
+
 export type CustomEdge = Edge<EdgeData, EdgeTypes>;
 
 

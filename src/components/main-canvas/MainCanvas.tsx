@@ -1,6 +1,7 @@
 import {
   ConnectionMode,
   ReactFlow,
+  SelectionMode,
 } from "@xyflow/react";
 
 import { sidebarTools } from "../../constant";
@@ -11,6 +12,7 @@ import ConnectableArrow from "../custom-edges/connectable-arrow/ConnectableArrow
 import AnchorNode from "../custom-nodes/AnchorNode";
 import EllipseNode from "../custom-nodes/ellipse/EllipseNode";
 import RectangleNode from "../custom-nodes/rectangle/RectangleNode";
+import GroupNode from "../custom-nodes/group/GroupNode";
 import ActionBar from "../action-bar/ActionBar";
 import ZoomControls from "../zoom-controls/ZoomControls";
 
@@ -22,6 +24,7 @@ const nodeTypes = {
   rectangle: RectangleNode,
   ellipse: EllipseNode,
   anchor: AnchorNode,
+  customGroup: GroupNode,
 };
 
 const edgeTypes = {
@@ -55,8 +58,11 @@ const MainCanvas: React.FC = () => {
 
         className={`tool-${activeTool}`}
 
-        panOnDrag={activeTool === sidebarTools.SELECT || activeTool === sidebarTools.PAN_ZOOM}
+        panOnDrag={activeTool === sidebarTools.PAN_ZOOM}
         nodesDraggable={activeTool === sidebarTools.SELECT}
+        selectionOnDrag={activeTool === sidebarTools.SELECT}
+        selectionMode={SelectionMode.Partial}
+        panOnScroll={true}
         minZoom={0.1}
         maxZoom={4.0}
       >
