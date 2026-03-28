@@ -12,7 +12,7 @@ export function useNodeChanges() {
       if (activeTool === sidebarTools.ARROW) return;
       const anchorPositionChanges = nodeChanges.filter(
         (c) =>
-          c.type === sidebarTools.SELECT &&
+          c.type === 'position' &&
           nodes.find((n) => n.id === c.id)?.type === 'anchor'
       );
 
