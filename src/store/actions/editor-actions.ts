@@ -3,7 +3,7 @@ import { ShapeNodeType, EdgeTypes, type AnchorNodeType, type ShapeNode, type Cus
 import { MarkerType } from '@xyflow/react';
 import { sidebarTools } from '../../constant';
 import { calculateSnapTarget } from '../../utils/snapping';
-import { getUniqueId } from '../../components/utils';
+import { getUniqueId } from '../../utils';
 
 export const initializeArrowFromExternalAction = (state: EditorStoreType): Partial<EditorStoreType> | null => {
   if (!state.drawingArrowFrom || state.anchorNodeDetails) return null;
