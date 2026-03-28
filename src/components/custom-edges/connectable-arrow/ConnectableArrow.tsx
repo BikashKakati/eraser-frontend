@@ -1,6 +1,7 @@
 import { BaseEdge, getSmoothStepPath, useNodes, type EdgeProps } from "@xyflow/react";
 import React from "react";
 import type { CustomEdge } from "../../../types";
+import { adjustColorBrightness } from "../../../utils/colors";
 
 const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
   sourceX,
@@ -12,6 +13,7 @@ const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
   markerEnd,
   selected,
   source,
+  data,
   target
 }) => {
   const nodes = useNodes();
@@ -27,15 +29,17 @@ const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
   const isEndpointSelected = nodes.some(n => (n.id === source || n.id === target) && n.selected);
   const isSelected = selected || isEndpointSelected;
 
+  const baseColor = data?.arrowColor || "#64748b"; // slate-500
+  const displayColor = isSelected ? adjustColorBrightness(baseColor, 0.90) : baseColor;
+
   return (
     <BaseEdge
       path={stepTypePath}
       markerEnd={markerEnd}
       style={{
-        stroke: isSelected ? "#6366f1" : "#64748b", // indigo-500 / slate-500
-        strokeWidth: 1
+        stroke: displayColor,
+        strokeWidth: isSelected ? 1.4 : 1.2
       }}
-      className="transition-colors duration-200"
     />
   );
 };
