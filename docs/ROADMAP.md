@@ -152,7 +152,8 @@ A visual diagramming tool for building systems using nodes and connections.
 # 9. Immediate Next Tasks
 
 Priority order:
-1. Implement canvas pan + zoom
-2. Plan and add save/load functionality
-3. Fix node resizing smoothness issue
+1. Plan and add save/load functionality --Done
+2. A bar which basically holds a nodes properties like bg/border color, delete, duplicate, ---Done
+3. Implement canvas pan + zoom -- Done
+4. Grouping/Ungrouping functionality with nested grouping
 
