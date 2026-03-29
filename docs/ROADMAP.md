@@ -13,11 +13,11 @@ A visual diagramming tool for building systems using nodes and connections.
 - Drag to place nodes on canvas
 - Nodes render at cursor drop position
 - Node resizing
+- Delete node
 
 ### Pending
 - Node rotation
 - Node duplication
-- Delete node
 
 ---
 
@@ -63,12 +63,12 @@ A visual diagramming tool for building systems using nodes and connections.
 - Node hover detection
 - Snap anchors appear near nodes
 - Node selection
-
-### Pending
 - Multi-node selection
 - Shift select
 - Grouping nodes
 - Drag multiple nodes
+
+### Pending
 
 ---
 
@@ -77,10 +77,10 @@ A visual diagramming tool for building systems using nodes and connections.
 ### Completed
 - Node drag movement
 - Arrow drawing interaction
+- Zoom canvas
+- Pan canvas
 
 ### Pending
-- Pan canvas
-- Zoom canvas
 - Zoom with mouse wheel
 - Fit canvas to view
 - Infinite canvas boundaries
@@ -123,13 +123,13 @@ A visual diagramming tool for building systems using nodes and connections.
 
 # 6. Persistence
 ### Current
+- Local storage save
+- Auto-save (local storage)
+- Load saved diagram (local storage)
 
 ### Pending
-- Local storage save
-- Manual save
-- Auto-save
-- Load saved diagram
-
+- Manual save as Canvas
+- Backend Db Save
 ---
 
 # 7. Advanced Features (Future)
@@ -145,7 +145,7 @@ A visual diagramming tool for building systems using nodes and connections.
 ---
 
 # 8. Known Bugs
-- Resize nodes does not feel smooth
+- Resize nodes does not feel smooth -- Done
 - Resizing nodes affect connected arrows
 
 
