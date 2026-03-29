@@ -38,7 +38,7 @@ const ConnectableArrow: React.FC<EdgeProps<CustomEdge>> = ({
       markerEnd={markerEnd}
       style={{
         stroke: displayColor,
-        strokeWidth: isSelected ? 1.4 : 1.2
+        strokeWidth: isSelected ? 1.2 : 1
       }}
     />
   );
