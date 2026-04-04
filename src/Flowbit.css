@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", sans-serif;
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
