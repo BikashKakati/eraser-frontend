@@ -39,7 +39,7 @@ const FlowbitCanvasPage = () => {
         let timeoutId: any;
         const unsub = useEditorStore.subscribe((state, prevState) => {
             // Check if actual diagram components changed
-            if (state.nodes === prevState.nodes && state.edges === prevState.edges) return;
+            if (JSON.stringify(state.nodes) === JSON.stringify(prevState.nodes) && JSON.stringify(state.edges) === JSON.stringify(prevState.edges)) return;
 
             setIsSaving(true);
             clearTimeout(timeoutId);
