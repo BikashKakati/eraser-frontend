@@ -1,4 +1,5 @@
 import { Button } from "../../../components/common/Button";
+import { ArrowRight } from "lucide-react";
 
 export function HeroSection() {
     return (
@@ -14,12 +15,15 @@ export function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
-                <Button to="/editor/new" variant="gradient" size="lg">
+                <Button to="/space" variant="gradient" size="lg">
                     Start Building
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                 </Button>
-                <Button to="/flows" variant="secondary" size="lg">
-                    View Existing Flows
+                <Button to="/space" variant="primary" size="lg" className="mr-0 md:mr-4 mb-4 md:mb-0 w-full sm:w-auto">
+                    <span className="flex items-center gap-2">
+                        Open Your Spaces
+                        <ArrowRight className="w-4 h-4" />
+                    </span>
                 </Button>
             </div>
         </section>

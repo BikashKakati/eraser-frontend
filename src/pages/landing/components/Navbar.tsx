@@ -10,11 +10,8 @@ export function Navbar() {
                 <span className="text-xl font-bold tracking-tight">Flowbit</span>
             </div>
             <div className="flex items-center gap-4">
-                <Link to="/flows" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                    Spaces
-                </Link>
-                <Button to="/flows" variant="primary" size="sm">
-                    Open Flows
+                <Button to="/space" variant="primary" size="sm">
+                    Open Spaces
                 </Button>
             </div>
         </nav>
