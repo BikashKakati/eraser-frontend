@@ -18,7 +18,6 @@ import ZoomControls from "../zoom-controls/ZoomControls";
 
 import { useCanvasInteractions } from "../../hooks/useCanvasInteractions";
 import { useNodeChanges } from "../../hooks/useNodeChanges";
-import { useCanvasPersistence } from "../../hooks/useCanvasPersistence";
 
 const nodeTypes = {
   rectangle: RectangleNode,
@@ -36,8 +35,6 @@ const MainCanvas: React.FC = () => {
 
   const { handleMouseDown, handleMouseMove, handleMouseUp } = useCanvasInteractions();
   const { handleNodeChange } = useNodeChanges();
-
-  useCanvasPersistence("default-canvas");
 
   return (
     <>
