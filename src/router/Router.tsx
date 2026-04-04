@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import PublicLayout from "../components/layouts/PublicLayout";
 import ProtectedLayout from "../components/layouts/ProtectedLayout";
-import LandingPage from "../pages/landing/LandingPage";
+import PublicLayout from "../components/layouts/PublicLayout";
+import FlowbitCanvasPage from "../pages/flowbit-canvas/FlowbitCanvasPage";
 import FlowsPage from "../pages/flows/FlowsPage";
-import FlowbitApp from "../FlowbitApp";
+import LandingPage from "../pages/landing/LandingPage";
 
 export const router = createBrowserRouter([
     {
@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
         element: <ProtectedLayout />,
         children: [
             { path: "flows", element: <FlowsPage /> },
-            { path: "editor/:id", element: <FlowbitApp /> },
+            { path: "editor/:id", element: <FlowbitCanvasPage /> },
         ],
     },
     {
