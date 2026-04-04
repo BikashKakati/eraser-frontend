@@ -65,10 +65,10 @@ export default function SpacePage() {
             {/* LEFT SIDEBAR: Spaces */}
             <aside className="w-72 bg-slate-950 border-r border-slate-800 flex flex-col">
                 <div className="p-5 flex items-center gap-3 border-b border-slate-800/50">
-                    <Link to="/" className="hover:opacity-80 transition-opacity">
+                    <Link to="/" className="hover:opacity-80 transition-opacity flex items-center gap-2">
                         <FlowbitLogo className="w-8 h-8" />
+                        <span className="text-xl font-bold tracking-tight">Flowbit</span>
                     </Link>
-                    <span className="text-xl font-bold tracking-tight">Flowbit</span>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-4 py-6">

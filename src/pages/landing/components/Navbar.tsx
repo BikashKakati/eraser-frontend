@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
-import { FlowbitLogo } from "../../../components/icons/Logo";
 import { Button } from "../../../components/common/Button";
+import { FlowbitLogo } from "../../../components/icons/Logo";
 
 export function Navbar() {
     return (
