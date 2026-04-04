@@ -53,8 +53,9 @@ const FlowbitCanvasPage = () => {
                     return rest;
                 });
                 FlowService.updateFlowData(id, cleanNodes as any, cleanEdges as any);
+                console.log("saving");
                 setIsSaving(false);
-            }, 800);
+            }, 2000);
         });
 
         return () => {
