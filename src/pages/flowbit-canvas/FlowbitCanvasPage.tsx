@@ -1,7 +1,8 @@
 import { ReactFlowProvider } from "@xyflow/react"
-import { Link } from "lucide-react"
 import Sidebar from "../../components/sidebar/Sidebar"
 import MainCanvas from "../../components/main-canvas/MainCanvas"
+import { Link } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
 
 const FlowbitCanvasPage = () => {
     return (
@@ -17,7 +18,7 @@ const FlowbitCanvasPage = () => {
             }}
         >
             <Link to="/flows" className="absolute top-4 left-4 z-50 px-3 py-1.5 bg-white border border-slate-200 rounded-lg shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                <ArrowLeft className="h-4 w-4" />
                 Spaces
             </Link>
             <ReactFlowProvider>
