@@ -1,6 +1,7 @@
 import type { AppNode, CustomEdge } from './index';
 import type { Tool } from './zustand-types';
 import type { NodeChange, EdgeChange, Connection, Position } from '@xyflow/react';
+import type { FlowHistoryState } from '../services/api/history-service';
 
 export interface CanvasSlice {
   nodes: AppNode[];
@@ -22,16 +23,16 @@ export interface CanvasSlice {
 export interface InteractionSlice {
   activeTool: Tool;
   setActiveTool: (tool: Tool) => void;
-  drawingArrowFrom: { 
-    x: number, 
+  drawingArrowFrom: {
+    x: number,
     y: number,
     parentId?: string,
     relativeX?: number,
     relativeY?: number,
     handlePosition?: Position
   } | null;
-  setDrawingArrowFrom: (pos: { 
-    x: number, 
+  setDrawingArrowFrom: (pos: {
+    x: number,
     y: number,
     parentId?: string,
     relativeX?: number,
@@ -46,4 +47,14 @@ export interface InteractionSlice {
   finalizeFreehandDraw: () => void;
 }
 
-export type EditorStoreType = CanvasSlice & InteractionSlice;
+export interface HistorySlice {
+  activeFlowId: string | null;
+  past: FlowHistoryState[];
+  future: FlowHistoryState[];
+  setActiveFlow: (flowId: string) => void;
+  commitHistory: () => void;
+  undoHistory: () => void;
+  redoHistory: () => void;
+}
+
+export type EditorStoreType = CanvasSlice & InteractionSlice & HistorySlice;
