@@ -79,11 +79,11 @@ A visual diagramming tool for building systems using nodes and connections.
 - Arrow drawing interaction
 - Zoom canvas
 - Pan canvas
+- Infinite canvas boundaries
 
 ### Pending
 - Zoom with mouse wheel
 - Fit canvas to view
-- Infinite canvas boundaries
 
 ---
 
@@ -147,13 +147,4 @@ A visual diagramming tool for building systems using nodes and connections.
 # 8. Known Bugs
 - Resize nodes does not feel smooth -- Done
 - Resizing nodes affect connected arrows
-
-
-# 9. Immediate Next Tasks
-
-Priority order:
-1. Plan and add save/load functionality --Done
-2. A bar which basically holds a nodes properties like bg/border color, delete, duplicate, ---Done
-3. Implement canvas pan + zoom -- Done
-4. Grouping/Ungrouping functionality with nested grouping
 
