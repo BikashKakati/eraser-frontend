@@ -10,7 +10,12 @@ import { useEditorStore } from "../../store/editor-store";
 const FlowbitCanvasPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const initializeCanvasData = useEditorStore(s => s.initializeCanvasData);
+
+    const {
+        initializeCanvasData, setActiveFlow: setActiveFlowHistory,
+        undoHistory: undo,
+        redoHistory: redo,
+    } = useEditorStore();
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -26,12 +31,31 @@ const FlowbitCanvasPage = () => {
         if (flow) {
             setFlowName(flow.name);
             initializeCanvasData(flow.nodes as any[], flow.edges as any[]);
+            setActiveFlowHistory(id);
             setIsLoading(false);
         } else {
             console.error("Flow not found");
             navigate("/space");
         }
-    }, [id, navigate, initializeCanvasData]);
+    }, [id, navigate, initializeCanvasData, setActiveFlowHistory]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+            const isMod = isMac ? e.metaKey : e.ctrlKey;
+
+            if (isMod && !e.shiftKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            } else if (isMod && e.key === 'y') {
+                e.preventDefault();
+                redo();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [undo, redo]);
 
     useEffect(() => {
         if (!id || isLoading) return;
