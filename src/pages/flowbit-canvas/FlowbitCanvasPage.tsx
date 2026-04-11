@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
-import Sidebar from "../../components/sidebar/Sidebar";
+import { ArrowLeft, CheckCircle2, Loader2, Redo2, Undo2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import MainCanvas from "../../components/main-canvas/MainCanvas";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, CheckCircle2 } from "lucide-react";
+import Sidebar from "../../components/sidebar/Sidebar";
 import { FlowService } from "../../services/api/flow-service";
 import { useEditorStore } from "../../store/editor-store";
+import { Button } from "../../components/common/Button";
 
 const FlowbitCanvasPage = () => {
     const { id } = useParams();
@@ -15,6 +16,8 @@ const FlowbitCanvasPage = () => {
         initializeCanvasData, setActiveFlow: setActiveFlowHistory,
         undoHistory: undo,
         redoHistory: redo,
+        past,
+        future
     } = useEditorStore();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -121,6 +124,25 @@ const FlowbitCanvasPage = () => {
                     ) : (
                         <span className="flex items-center gap-1.5 text-xs text-slate-400"><CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Saved</span>
                     )}
+                </div>
+
+                <div className="flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <Button
+                        variant="general"
+                        onClick={undo}
+                        disabled={past.length === 0}
+                        title="Undo (Ctrl+Z)"
+                    >
+                        <Undo2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                        variant="general"
+                        onClick={redo}
+                        disabled={future.length === 0}
+                        title="Redo (Ctrl+Y)"
+                    >
+                        <Redo2 className="w-4 h-4" />
+                    </Button>
                 </div>
             </div>
 
