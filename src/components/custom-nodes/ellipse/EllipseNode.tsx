@@ -16,7 +16,7 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
   const nodeHeight = Math.max(0, wrapperHeight - margin * 2);
 
 
-  const { activeTool, setDrawingArrowFrom, updateShapeNode } = useEditorStore();
+  const { activeTool, setDrawingArrowFrom, updateShapeNode, commitHistory } = useEditorStore();
 
   const [hoverPos, setHoverPos] = useState<{ x: number, y: number, handlePosition: Position } | null>(null);
   const [isTextAreaEnabled, setIsTextAreaEnabled] = useState(false);
@@ -191,7 +191,8 @@ const EllipseNode: React.FC<NodeProps<ShapeNode>> = ({ data = {}, selected, id, 
             minWidth={dynamicMinWidth + margin * 2}
             minHeight={dynamicMinHeight + margin * 2}
             keepAspectRatio={false}
-            lineClassName="!border-indigo-400 rounded-xl !border-[1.2px]"
+            onResizeStart={() => commitHistory()}
+            lineClassName="!border-indigo-400 rounded-full !border-[1.2px]"
             handleClassName="!w-2 !h-2 !bg-white !border-2 !border-indigo-500 rounded-full shadow-sm"
           />
         )

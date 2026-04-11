@@ -31,7 +31,7 @@ const edgeTypes = {
 };
 
 const MainCanvas: React.FC = () => {
-  const { activeTool, nodes, edges, onEdgesChange, onConnect } = useEditorStore();
+  const { activeTool, nodes, edges, onEdgesChange, onConnect, commitHistory } = useEditorStore();
 
   const { handleMouseDown, handleMouseMove, handleMouseUp } = useCanvasInteractions();
   const { handleNodeChange } = useNodeChanges();
@@ -46,6 +46,7 @@ const MainCanvas: React.FC = () => {
         onConnect={onConnect}
         onNodesChange={handleNodeChange}
         onEdgesChange={onEdgesChange}
+        onNodeDragStart={() => commitHistory()}
         connectionMode={ConnectionMode.Loose}
         connectionLineComponent={ConnectionLine}
 
