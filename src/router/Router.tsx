@@ -1,24 +1,27 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import ProtectedLayout from "../components/layouts/ProtectedLayout";
 import PublicLayout from "../components/layouts/PublicLayout";
-import FlowbitCanvasPage from "../pages/flowbit-canvas/FlowbitCanvasPage";
-import LandingPage from "../pages/landing/LandingPage";
-import SpacePage from "../pages/space/SpacePage";
+import FlowbitLoader from "../components/common/FlowbitLoader";
+
+const FlowbitCanvasPage = lazy(() => import("../pages/flowbit-canvas/FlowbitCanvasPage"));
+const LandingPage = lazy(() => import("../pages/landing/LandingPage"));
+const SpacePage = lazy(() => import("../pages/space/SpacePage"));
 
 export const router = createBrowserRouter([
     {
         path: "/",
         element: <PublicLayout />,
         children: [
-            { index: true, element: <LandingPage /> },
+            { index: true, element: <Suspense fallback={<FlowbitLoader />}><LandingPage /></Suspense> },
         ],
     },
     {
         path: "/",
         element: <ProtectedLayout />,
         children: [
-            { path: "space", element: <SpacePage /> },
-            { path: "editor/:id", element: <FlowbitCanvasPage /> },
+            { path: "space", element: <Suspense fallback={<FlowbitLoader />}><SpacePage /></Suspense> },
+            { path: "editor/:id", element: <Suspense fallback={<FlowbitLoader />}><FlowbitCanvasPage /></Suspense> },
         ],
     },
     {

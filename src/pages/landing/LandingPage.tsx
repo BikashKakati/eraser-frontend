@@ -1,8 +1,8 @@
-import { Navbar } from "./components/Navbar";
+import { CTASection } from "./components/CTASection";
+import { FeaturesSection } from "./components/FeaturesSection";
 import { HeroSection } from "./components/HeroSection";
 import { InteractivePreviewSection } from "./components/InteractivePreviewSection";
-import { FeaturesSection } from "./components/FeaturesSection";
-import { CTASection } from "./components/CTASection";
+import { Navbar } from "./components/Navbar";
 
 export default function LandingPage() {
     return (
