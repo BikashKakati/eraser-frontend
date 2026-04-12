@@ -126,7 +126,7 @@ const FlowbitCanvasPage = () => {
                     )}
                 </div>
 
-                <div className="flex items-center gap-1 p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <div className="flex items-center bg-white border border-slate-200 rounded-lg shadow-sm">
                     <Button
                         variant="general"
                         onClick={undo}
