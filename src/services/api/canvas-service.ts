@@ -23,18 +23,19 @@ class CanvasServiceClass {
     // It creates a debounced function per flowId to avoid clashing.
     private debouncedSavers: Record<string, (...args: any[]) => void> = {};
 
-    saveCanvasContentDebounced(flowId: string, nodes: Node[], edges: Edge[], delay: number = 6000): void {
+    saveCanvasContentDebounced(flowId: string, nodes: Node[], edges: Edge[], delay: number = 2000, onSuccess?: () => void): void {
         if (!this.debouncedSavers[flowId]) {
-            this.debouncedSavers[flowId] = debounce(async (fId: string, n: Node[], e: Edge[]) => {
+            this.debouncedSavers[flowId] = debounce(async (fId: string, n: Node[], e: Edge[], callback?: () => void) => {
                 try {
                     await this.saveCanvasContent(fId, n, e);
+                    if (callback) callback();
                 } catch (error) {
                     console.error("Failed to cleanly save canvas via debouncer", error);
                 }
             }, delay);
         }
 
-        this.debouncedSavers[flowId](flowId, nodes, edges);
+        this.debouncedSavers[flowId](flowId, nodes, edges, onSuccess);
     }
 }
 

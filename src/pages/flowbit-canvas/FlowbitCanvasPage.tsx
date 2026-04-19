@@ -67,37 +67,29 @@ const FlowbitCanvasPage = () => {
     useEffect(() => {
         if (!id || isLoading) return;
 
-        let timeoutId: any;
         const unsub = useEditorStore.subscribe((state, prevState) => {
             // Check if actual diagram components changed
             if (JSON.stringify(state.nodes) === JSON.stringify(prevState.nodes) && JSON.stringify(state.edges) === JSON.stringify(prevState.edges)) return;
 
             setIsSaving(true);
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                const cleanNodes = state.nodes.map((node) => {
-                    const { selected, dragging, measured, positionAbsolute, ...rest } = node as any;
-                    return rest;
-                });
-                const cleanEdges = state.edges.map((edge) => {
-                    const { selected, ...rest } = edge as any;
-                    return rest;
-                });
-                // Using standard debouncer from CanvasService instead of setTimeout if needed,
-                // but this relies on custom debounce in CanvasService.
-                // We'll just call saveCanvasContent and let the backend save it.
-                CanvasService.saveCanvasContent(id, cleanNodes as any, cleanEdges as any).then(() => {
-                    setIsSaving(false);
-                }).catch(err => {
-                    console.error("Save failed", err);
-                    setIsSaving(false);
-                });
-            }, 1000);
+            const cleanNodes = state.nodes.map((node) => {
+                const { selected, dragging, measured, positionAbsolute, ...rest } = node as any;
+                return rest;
+            });
+            const cleanEdges = state.edges.map((edge) => {
+                const { selected, ...rest } = edge as any;
+                return rest;
+            });
+
+            // Delegate completely to our backend service class debouncer
+            // Pass undefined to delay to inherit your default 6000ms delay.
+            CanvasService.saveCanvasContentDebounced(id, cleanNodes as any, cleanEdges as any, undefined, () => {
+                setIsSaving(false);
+            });
         });
 
         return () => {
             unsub();
-            clearTimeout(timeoutId);
         }
     }, [id, isLoading]);
 
