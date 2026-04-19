@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MainCanvas from "../../components/main-canvas/MainCanvas";
 import Sidebar from "../../components/sidebar/Sidebar";
-import { FlowService } from "../../services/api/flow-service";
+import { CanvasService } from "../../services/api/canvas-service";
 import { useEditorStore } from "../../store/editor-store";
 import { Button } from "../../components/common/Button";
 
@@ -30,16 +30,20 @@ const FlowbitCanvasPage = () => {
             return;
         }
 
-        const flow = FlowService.getFlow(id);
-        if (flow) {
-            setFlowName(flow.name);
-            initializeCanvasData(flow.nodes as any[], flow.edges as any[]);
-            setActiveFlowHistory(id);
-            setIsLoading(false);
-        } else {
-            console.error("Flow not found");
-            navigate("/space");
-        }
+        const loadCanvas = async () => {
+            try {
+                const canvas = await CanvasService.getCanvasContent(id);
+                setFlowName("Flow");
+
+                initializeCanvasData((canvas.nodes as any[]) || [], (canvas.edges as any[]) || []);
+                setActiveFlowHistory(id);
+                setIsLoading(false);
+            } catch (err) {
+                console.error("Canvas fetch error", err);
+                navigate("/space");
+            }
+        };
+        loadCanvas();
     }, [id, navigate, initializeCanvasData, setActiveFlowHistory]);
 
     useEffect(() => {
@@ -79,9 +83,15 @@ const FlowbitCanvasPage = () => {
                     const { selected, ...rest } = edge as any;
                     return rest;
                 });
-                FlowService.updateFlowData(id, cleanNodes as any, cleanEdges as any);
-                console.log("saving");
-                setIsSaving(false);
+                // Using standard debouncer from CanvasService instead of setTimeout if needed,
+                // but this relies on custom debounce in CanvasService.
+                // We'll just call saveCanvasContent and let the backend save it.
+                CanvasService.saveCanvasContent(id, cleanNodes as any, cleanEdges as any).then(() => {
+                    setIsSaving(false);
+                }).catch(err => {
+                    console.error("Save failed", err);
+                    setIsSaving(false);
+                });
             }, 1000);
         });
 
@@ -130,7 +140,7 @@ const FlowbitCanvasPage = () => {
                     <Button
                         variant="general"
                         onClick={undo}
-                        disabled={past.length === 0}
+                        disabled={past?.length === 0}
                         title="Undo (Ctrl+Z)"
                     >
                         <Undo2 className="w-4 h-4" />
@@ -138,7 +148,7 @@ const FlowbitCanvasPage = () => {
                     <Button
                         variant="general"
                         onClick={redo}
-                        disabled={future.length === 0}
+                        disabled={future?.length === 0}
                         title="Redo (Ctrl+Y)"
                     >
                         <Redo2 className="w-4 h-4" />
