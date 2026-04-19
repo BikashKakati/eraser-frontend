@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | "general" | 'outline' | 'ghost' | 'gradient';
+    variant?: 'primary' | 'secondary' | "general" | 'outline' | 'ghost' | 'gradient' | 'danger';
     size?: 'sm' | 'md' | 'lg';
     to?: string;
 }
@@ -24,6 +24,7 @@ export const Button: React.FC<ButtonProps> = ({
         outline: "border border-slate-700 hover:bg-slate-800/50 text-slate-300 hover:text-white",
         ghost: "hover:bg-slate-800/50 text-slate-300 hover:text-white hover:scale-100", // Ghost buttons usually don't scale up
         gradient: "bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 text-white shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:shadow-[0_0_40px_rgba(99,102,241,0.6)]",
+        danger: "bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white shadow-lg shadow-rose-500/10 hover:shadow-rose-500/25",
     };
 
     const sizes = {
