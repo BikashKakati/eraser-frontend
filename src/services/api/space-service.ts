@@ -1,72 +1,31 @@
-import { v4 as uuidv4 } from "uuid";
+import { apiClient } from "../../config/api-client";
 
 export interface Space {
   id: string;
   userId: string;
   name: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const SPACES_STORAGE_KEY = "flowbit_spaces";
-
 export const SpaceService = {
-  getSpaces: (userId: string = "default-user"): Space[] => {
-    try {
-      const data = localStorage.getItem(SPACES_STORAGE_KEY);
-      if (!data) return [];
-      const spaces: Space[] = JSON.parse(data);
-      return spaces.filter((s) => s.userId === userId).sort((a, b) => b.updatedAt - a.updatedAt);
-    } catch (e) {
-      console.error("Failed to parse spaces from localStorage", e);
-      return [];
-    }
+  getSpaces: async (): Promise<Space[]> => {
+    const response = await apiClient.get<{ success: boolean, message: string, data: Space[] }>('/spaces');
+    return response.data.data;
   },
 
-  createSpace: (name: string, userId: string = "default-user"): Space => {
-    const newSpace: Space = {
-      id: uuidv4(),
-      userId,
-      name,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    
-    const allRaw = localStorage.getItem(SPACES_STORAGE_KEY);
-    const allSpaces: Space[] = allRaw ? JSON.parse(allRaw) : [];
-    
-    allSpaces.push(newSpace);
-    localStorage.setItem(SPACES_STORAGE_KEY, JSON.stringify(allSpaces));
-    
-    return newSpace;
+  createSpace: async (id: string, name: string): Promise<Space> => {
+    const response = await apiClient.post<{ success: boolean, message: string, data: Space }>('/spaces', { id, name });
+    return response.data.data;
   },
 
-  updateSpace: (id: string, newName: string): Space | null => {
-    const allRaw = localStorage.getItem(SPACES_STORAGE_KEY);
-    if (!allRaw) return null;
-    
-    const spaces: Space[] = JSON.parse(allRaw);
-    const index = spaces.findIndex(s => s.id === id);
-    if (index === -1) return null;
-
-    spaces[index].name = newName;
-    spaces[index].updatedAt = Date.now();
-    localStorage.setItem(SPACES_STORAGE_KEY, JSON.stringify(spaces));
-    return spaces[index];
+  updateSpace: async (id: string, newName: string): Promise<Space> => {
+    const response = await apiClient.put<{ success: boolean, message: string, data: Space }>(`/spaces/${id}`, { name: newName });
+    return response.data.data;
   },
 
-  deleteSpace: (id: string): boolean => {
-    const allRaw = localStorage.getItem(SPACES_STORAGE_KEY);
-    if (!allRaw) return false;
-    
-    let spaces: Space[] = JSON.parse(allRaw);
-    const initialLength = spaces.length;
-    spaces = spaces.filter(s => s.id !== id);
-    
-    if (spaces.length !== initialLength) {
-      localStorage.setItem(SPACES_STORAGE_KEY, JSON.stringify(spaces));
-      return true;
-    }
-    return false;
+  deleteSpace: async (id: string): Promise<boolean> => {
+    const response = await apiClient.delete<{ success: boolean }>(`/spaces/${id}`);
+    return response.data.success;
   }
 };

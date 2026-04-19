@@ -1,87 +1,32 @@
-import { v4 as uuidv4 } from "uuid";
-import type { Node, Edge } from "@xyflow/react";
+import { apiClient } from "../../config/api-client";
 
-export interface Flow {
+export interface FlowMetadata {
   id: string;
   spaceId: string;
+  userId: string;
   name: string;
-  nodes: Node[];
-  edges: Edge[];
-  createdAt: number;
-  updatedAt: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const FLOWS_STORAGE_KEY = "flowbit_flows";
-
 export const FlowService = {
-  getAllFlowsRaw: (): Flow[] => {
-    try {
-      const data = localStorage.getItem(FLOWS_STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch (e) {
-      console.error("Failed to parse flows from localStorage", e);
-      return [];
-    }
+  getFlowsBySpace: async (spaceId: string): Promise<FlowMetadata[]> => {
+    const response = await apiClient.get<{ success: boolean, message: string, data: FlowMetadata[] }>(`/spaces/${spaceId}/flows`);
+    return response.data.data;
   },
 
-  getFlowsBySpace: (spaceId: string): Flow[] => {
-    const flows = FlowService.getAllFlowsRaw();
-    return flows.filter((f) => f.spaceId === spaceId).sort((a, b) => b.updatedAt - a.updatedAt);
+  createFlow: async (spaceId: string, id: string, name: string): Promise<FlowMetadata> => {
+    const response = await apiClient.post<{ success: boolean, message: string, data: FlowMetadata }>(`/spaces/${spaceId}/flows`, { id, name });
+    return response.data.data;
   },
 
-  getFlow: (id: string): Flow | null => {
-    const flows = FlowService.getAllFlowsRaw();
-    return flows.find((f) => f.id === id) || null;
+  updateFlowName: async (id: string, name: string): Promise<FlowMetadata> => {
+    const response = await apiClient.put<{ success: boolean, message: string, data: FlowMetadata }>(`/flows/${id}/name`, { name });
+    return response.data.data;
   },
 
-  createFlow: (spaceId: string, name: string): Flow => {
-    const newFlow: Flow = {
-      id: uuidv4(),
-      spaceId,
-      name,
-      nodes: [],
-      edges: [],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    
-    const allFlows = FlowService.getAllFlowsRaw();
-    allFlows.push(newFlow);
-    localStorage.setItem(FLOWS_STORAGE_KEY, JSON.stringify(allFlows));
-    
-    return newFlow;
-  },
-
-  updateFlowData: (id: string, nodes: Node[], edges: Edge[]) => {
-    const allFlows = FlowService.getAllFlowsRaw();
-    const index = allFlows.findIndex(f => f.id === id);
-    if (index === -1) return null;
-
-    allFlows[index].nodes = nodes;
-    allFlows[index].edges = edges;
-    allFlows[index].updatedAt = Date.now();
-    localStorage.setItem(FLOWS_STORAGE_KEY, JSON.stringify(allFlows));
-    return allFlows[index];
-  },
-
-  updateFlowName: (id: string, name: string): Flow | null => {
-    const allFlows = FlowService.getAllFlowsRaw();
-    const index = allFlows.findIndex(f => f.id === id);
-    if (index === -1) return null;
-
-    allFlows[index].name = name;
-    allFlows[index].updatedAt = Date.now();
-    localStorage.setItem(FLOWS_STORAGE_KEY, JSON.stringify(allFlows));
-    return allFlows[index];
-  },
-
-  deleteFlow: (id: string): boolean => {
-    const allFlows = FlowService.getAllFlowsRaw();
-    const filtered = allFlows.filter(f => f.id !== id);
-    if (filtered.length !== allFlows.length) {
-      localStorage.setItem(FLOWS_STORAGE_KEY, JSON.stringify(filtered));
-      return true;
-    }
-    return false;
+  deleteFlow: async (id: string): Promise<boolean> => {
+    const response = await apiClient.delete<{ success: boolean }>(`/flows/${id}`);
+    return response.data.success;
   }
 };
