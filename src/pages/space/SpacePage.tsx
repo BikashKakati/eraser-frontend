@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { ArrowRight, FolderOpen, Plus } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FlowbitLogo } from "../../components/icons/Logo";
-import { Button } from "../../components/common/Button";
-import { SpaceService } from "../../services/api/space-service";
-import type { Space } from "../../services/api/space-service";
-import { FlowService } from "../../services/api/flow-service";
-import type { FlowMetadata } from "../../services/api/flow-service";
-import { Plus, FolderOpen, ArrowRight } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import { Button } from "../../components/common/Button";
+import { FlowbitLogo } from "../../components/icons/Logo";
+import { FlowService } from "../../services/api/flow-service";
+import { SpaceService } from "../../services/api/space-service";
+import { useWorkspaceStore } from "../../store/workspace-store";
 
 export default function SpacePage() {
     const navigate = useNavigate();
-    const [spaces, setSpaces] = useState<Space[]>([]);
-    const [flows, setFlows] = useState<FlowMetadata[]>([]);
-    const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+    const { spaces, activeSpaceId, setSpaces, setActiveSpaceId, addSpace, addFlow, getFlowsBySpaceId, hasFetchedFlowsForSpace, setFlowsForSpace } = useWorkspaceStore();
+    const flows = activeSpaceId ? getFlowsBySpaceId(activeSpaceId) : [];
 
     // Modal states
     const [isSpaceModalOpen, setSpaceModalOpen] = useState(false);
@@ -24,11 +22,26 @@ export default function SpacePage() {
 
     useEffect(() => {
         const loadSpaces = async () => {
+            if (spaces.length > 0) {
+                if (!activeSpaceId) {
+                    setActiveSpaceId(spaces[0].id);
+                }
+                return;
+            }
             try {
                 const loadedSpaces = await SpaceService.getSpaces();
                 setSpaces(loadedSpaces);
                 if (loadedSpaces.length > 0 && !activeSpaceId) {
-                    setActiveSpaceId(loadedSpaces[0].id);
+                    const firstSpaceId = loadedSpaces[0].id;
+                    setActiveSpaceId(firstSpaceId);
+                    if (!hasFetchedFlowsForSpace(firstSpaceId)) {
+                        try {
+                            const spaceFlows = await FlowService.getFlowsBySpace(firstSpaceId);
+                            setFlowsForSpace(firstSpaceId, spaceFlows);
+                        } catch (err) {
+                            console.error("Failed to load flows", err);
+                        }
+                    }
                 }
             } catch (err) {
                 console.error("Failed to load spaces", err);
@@ -37,28 +50,15 @@ export default function SpacePage() {
         loadSpaces();
     }, []);
 
-    useEffect(() => {
-        const loadFlows = async () => {
-            if (activeSpaceId) {
-                try {
-                    setFlows(await FlowService.getFlowsBySpace(activeSpaceId));
-                } catch (err) {
-                    console.error("Failed to load flows", err);
-                }
-            } else {
-                setFlows([]);
-            }
-        };
-        loadFlows();
-    }, [activeSpaceId]);
 
     const handleCreateSpace = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newSpaceName.trim()) return;
         try {
             const s = await SpaceService.createSpace(uuidv4(), newSpaceName.trim());
-            setSpaces(await SpaceService.getSpaces());
+            addSpace(s);
             setActiveSpaceId(s.id);
+            setFlowsForSpace(s.id, []);
             setNewSpaceName("");
             setSpaceModalOpen(false);
         } catch (err) {
@@ -71,7 +71,7 @@ export default function SpacePage() {
         if (!newFlowName.trim() || !activeSpaceId) return;
         try {
             const f = await FlowService.createFlow(activeSpaceId, uuidv4(), newFlowName.trim());
-            setFlows(await FlowService.getFlowsBySpace(activeSpaceId));
+            addFlow(f);
             setNewFlowName("");
             setFlowModalOpen(false);
             navigate(`/editor/${f.id}`);
@@ -79,6 +79,21 @@ export default function SpacePage() {
             console.error("Failed to create flow", err);
         }
     };
+    const handleSelectSpace = async (selectedSpaceId: string) => {
+        if (selectedSpaceId === activeSpaceId) {
+            return;
+        }
+        setActiveSpaceId(selectedSpaceId);
+        if (!hasFetchedFlowsForSpace(selectedSpaceId)) {
+            try {
+                const spaceFlows = await FlowService.getFlowsBySpace(selectedSpaceId);
+                setFlowsForSpace(selectedSpaceId, spaceFlows);
+            } catch (err) {
+                console.error("Failed to load flows", err);
+                setFlowsForSpace(selectedSpaceId, []);
+            }
+        }
+    }
 
     const activeSpace = useMemo(() => spaces.find(s => s.id === activeSpaceId), [spaces, activeSpaceId]);
 
@@ -109,7 +124,7 @@ export default function SpacePage() {
                             spaces.map(s => (
                                 <button
                                     key={s.id}
-                                    onClick={() => setActiveSpaceId(s.id)}
+                                    onClick={() => { handleSelectSpace(s.id) }}
                                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeSpaceId === s.id
                                         ? "bg-indigo-500/10 text-indigo-400"
                                         : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
