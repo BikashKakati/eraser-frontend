@@ -2,11 +2,13 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { ArrowLeft, CheckCircle2, Loader2, Redo2, Undo2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { Button } from "../../components/common/Button";
 import MainCanvas from "../../components/main-canvas/MainCanvas";
 import Sidebar from "../../components/sidebar/Sidebar";
 import { CanvasService } from "../../services/api/canvas-service";
 import { useEditorStore } from "../../store/editor-store";
-import { Button } from "../../components/common/Button";
+import { useWorkspaceStore } from "../../store/workspace-store";
+import { DEBOUNCE_DELAY } from "../../constant";
 
 const FlowbitCanvasPage = () => {
     const { id } = useParams();
@@ -22,7 +24,7 @@ const FlowbitCanvasPage = () => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const [flowName, setFlowName] = useState("Flow");
+    const flowName = id ? useWorkspaceStore((state) => state.getFlowById(id))?.name || "Flow" : "Flow";
 
     useEffect(() => {
         if (!id) {
@@ -33,7 +35,6 @@ const FlowbitCanvasPage = () => {
         const loadCanvas = async () => {
             try {
                 const canvas = await CanvasService.getCanvasContent(id);
-                setFlowName("Flow");
 
                 initializeCanvasData((canvas.nodes as any[]) || [], (canvas.edges as any[]) || []);
                 setActiveFlowHistory(id);
@@ -72,18 +73,7 @@ const FlowbitCanvasPage = () => {
             if (JSON.stringify(state.nodes) === JSON.stringify(prevState.nodes) && JSON.stringify(state.edges) === JSON.stringify(prevState.edges)) return;
 
             setIsSaving(true);
-            const cleanNodes = state.nodes.map((node) => {
-                const { selected, dragging, measured, positionAbsolute, ...rest } = node as any;
-                return rest;
-            });
-            const cleanEdges = state.edges.map((edge) => {
-                const { selected, ...rest } = edge as any;
-                return rest;
-            });
-
-            // Delegate completely to our backend service class debouncer
-            // Pass undefined to delay to inherit your default 6000ms delay.
-            CanvasService.saveCanvasContentDebounced(id, cleanNodes as any, cleanEdges as any, undefined, () => {
+            CanvasService.saveCanvasContentDebounced(id, state.nodes as any, state.edges as any, DEBOUNCE_DELAY, () => {
                 setIsSaving(false);
             });
         });
